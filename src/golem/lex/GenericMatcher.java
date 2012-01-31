@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GenericLexer {
+public class GenericMatcher {
 
     private static class Rule {
         public Pattern      pattern;
@@ -21,7 +21,7 @@ public class GenericLexer {
     }
 
     public static interface ILexerAction {
-        public void invoke(GenericLexer lex);
+        public void invoke(GenericMatcher lex);
     }
 
     private int                m_offset;
@@ -32,7 +32,7 @@ public class GenericLexer {
     private ArrayList<Rule>    m_rules    = new ArrayList<Rule>();
     private ILexerAction       m_defaultAction;
 
-    public GenericLexer() {
+    public GenericMatcher() {
     }
 
     public void addRule(String pat, int id, boolean hidden, ILexerAction act) {
@@ -122,11 +122,11 @@ public class GenericLexer {
     }
 
     public static void main(String[] args) {
-        GenericLexer gl = new GenericLexer();
+        GenericMatcher gl = new GenericMatcher();
         final PositionTracker pt = new PositionTracker();
         gl.addRule("\n", 4, true, new ILexerAction() {
             @Override
-            public void invoke(GenericLexer lex) {
+            public void invoke(GenericMatcher lex) {
                 pt.newLine();
             }
         });
@@ -137,7 +137,7 @@ public class GenericLexer {
         gl.addRule(".", 2, false, null);
         gl.setDefaultAction(new ILexerAction() {
             @Override
-            public void invoke(GenericLexer lex) {
+            public void invoke(GenericMatcher lex) {
                 pt.advance(lex.getValue().length());
             }
         });
