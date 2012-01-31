@@ -1,0 +1,8 @@
+import java.util.regex.*;
+import java.util.*;
+import java.net.*;
+import gnu.bytecode.*;
+
+def or = if(0) null else 11;
+
+System.out.println(typeof(or));
