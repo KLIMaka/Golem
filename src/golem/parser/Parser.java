@@ -4,6 +4,7 @@ import golem.lex.Lexer;
 import golem.lex.Token;
 import golem.symbol.Iled;
 import golem.symbol.Inud;
+import golem.symbol.ParseException;
 import golem.symbol.Symbol;
 import golem.symbol.leds.Assign;
 import golem.symbol.leds.Bin;
@@ -64,7 +65,7 @@ public class Parser {
         return ref;
     }
 
-    public Parser(CharSequence cs) {
+    public Parser(CharSequence cs) throws ParseException {
 
         m_lex = new Lexer(cs);
         m_current.token = m_lex.tok();
@@ -110,7 +111,7 @@ public class Parser {
         resolveSymbol();
     }
 
-    public void advance(String expected) {
+    public void advance(String expected) throws ParseException {
 
         if (expected != null && !expected.equals(m_lex.tok().val)) {
             m_lex.tok().error("Expecting '" + expected + "'");
@@ -121,7 +122,7 @@ public class Parser {
         resolveSymbol();
     }
 
-    public void advance() {
+    public void advance() throws ParseException {
         advance(null);
     }
 
@@ -201,7 +202,7 @@ public class Parser {
         return m_lex.eoi();
     }
 
-    public Symbol expression(int rbp) {
+    public Symbol expression(int rbp) throws ParseException {
 
         Symbol t = ncurrent();
         advance();
@@ -214,7 +215,7 @@ public class Parser {
         return left;
     }
 
-    public Symbol program() {
+    public Symbol program() throws ParseException {
 
         ArrayList<Symbol> prog = new ArrayList<Symbol>();
         while (!m_lex.eoi()) {

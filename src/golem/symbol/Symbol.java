@@ -4,6 +4,7 @@ import gnu.bytecode.Type;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.lex.Token;
+import golem.lex.Token1;
 import golem.parser.Scope;
 import golem.symbol.leds.Null_led;
 import golem.symbol.nuds.Null_nud;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class Symbol {
 
     public Token               token  = null;
+    public Token1              token1 = null;
     public int                 lbp    = 0;
     public Inud                nud    = Null_nud.instance;
     public Iled                led    = Null_led.instance;

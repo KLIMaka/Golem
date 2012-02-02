@@ -26,14 +26,14 @@ public class GenericMatcher {
 
     private int                m_offset;
     private int                m_end;
+    private int                m_id;
     private String             m_value;
     private boolean            m_eoi      = false;
     private ArrayList<Matcher> m_matchers = new ArrayList<Matcher>();
     private ArrayList<Rule>    m_rules    = new ArrayList<Rule>();
     private ILexerAction       m_defaultAction;
 
-    public GenericMatcher() {
-    }
+    public GenericMatcher() {}
 
     public void addRule(String pat, int id, boolean hidden, ILexerAction act) {
         m_rules.add(new Rule(Pattern.compile("^" + pat), id, hidden, act));
@@ -97,11 +97,15 @@ public class GenericMatcher {
             break;
         }
 
-        return m_rules.get(type).id;
+        return m_id = m_rules.get(type).id;
     }
 
     public String getValue() {
         return m_value;
+    }
+
+    public int getId() {
+        return m_id;
     }
 
     static class PositionTracker {
