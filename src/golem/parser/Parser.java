@@ -12,12 +12,14 @@ import golem.symbol.leds.Call;
 import golem.symbol.leds.Member;
 import golem.symbol.nuds.Block;
 import golem.symbol.nuds.Def;
+import golem.symbol.nuds.False;
 import golem.symbol.nuds.If_;
 import golem.symbol.nuds.Import;
 import golem.symbol.nuds.Itself;
 import golem.symbol.nuds.New;
 import golem.symbol.nuds.Null;
 import golem.symbol.nuds.Parentheses;
+import golem.symbol.nuds.True;
 import golem.symbol.nuds.Typeof;
 import golem.symbol.nuds.While_;
 
@@ -96,6 +98,8 @@ public class Parser {
         prefix("import", Import.instance);
         prefix("new", New.instance);
         prefix("null", Null.instance);
+        prefix("true", True.instance);
+        prefix("false", False.instance);
 
         advance();
     }

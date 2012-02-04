@@ -16,6 +16,8 @@ public class MetaHelloWorld {
         c.setSuper("java.lang.Object");
         c.setModifiers(Access.PUBLIC);
 
+        Runnable a;
+
         // "public static int add(int, int)".
         Method m = c.addMethod("add", "(II)I", Access.PUBLIC | Access.STATIC);
         CodeAttr code = m.startCode();
@@ -37,8 +39,8 @@ public class MetaHelloWorld {
         code.emitGetStatic(ClassType.make("java.lang.System").getDeclaredField("out"));
         // code.emitPushConstant(cc.index, Type.floatType);
         code.emitPushFloat(new Float(12.1f));
-        code.emitInvokeVirtual(ClassType.make("java.io.PrintStream").getMethod("println",
-                new Type[] { Type.floatType }));
+        code.emitInvokeVirtual(ClassType.make("java.io.PrintStream")
+                .getMethod("println", new Type[] { Type.floatType }));
         code.emitReturn();
         code.popScope();
 

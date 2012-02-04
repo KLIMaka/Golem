@@ -3,6 +3,25 @@ import java.util.*;
 import java.net.*;
 import gnu.bytecode.*;
 
-def or = if(0) null else 11;
+import gnu.bytecode.ClassType.*;
 
-System.out.println(typeof(or));
+def ct = new ClassType("myc");
+ct.setSuper("java.lang.Object");
+ct.addInterface(ClassType.make("java.lang.Runnable"));
+ct.setModifiers(Access.PUBLIC);
+def m = ct.addMethod("run", "()V", Access.PUBLIC);
+def code = m.startCode();
+
+code.pushScope();
+code.emitPushInt(1);
+code.emitPushInt(2);
+code.emitAdd(Type.intType);
+code.emitReturn();
+code.popScope();
+
+def cl = new ArrayClassLoader();
+cl.addClass("myc", ct.writeToArray());
+
+def helloWorldClass = cl.loadClass("myc", true);
+System.out.println(ClassType.make("myc"));
+
