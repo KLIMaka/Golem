@@ -1,21 +1,21 @@
 package golem.symbol.leds;
 
-import gnu.bytecode.ClassType;
 import gnu.bytecode.Method;
 import gnu.bytecode.Type;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.parser.Parser;
-import golem.symbol.Igen;
+import golem.symbol.IRvalue;
 import golem.symbol.Iled;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
+import golem.typesystem.Methods;
 import golem.typesystem.TypeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Call implements Iled, Igen {
+public class Call implements Iled, IRvalue {
 
     public static Call instance = new Call();
 
@@ -38,22 +38,14 @@ public class Call implements Iled, Igen {
         }
         p.advance(); // ')'
 
-        String method_name = left.second().toString();
         Type[] arg_types = at.toArray(new Type[at.size()]);
-        ClassType ct = (ClassType) left.first().type;
-
-        Method method = TypeUtils.searchMethod(ct, method_name, arg_types);
-
-        if (method == null) {
-            self.token.error("Undefined method '" + left.second().toString() + "' in "
-                    + ct.getName());
-        }
+        Method method = ((Methods) left.tag("method")).match(arg_types);
 
         self.first = left;
         self.second = args;
         self.type = method.getReturnType();
         self.third = method;
-        self.gen = instance;
+        self.rval = instance;
         return self;
     }
 
@@ -61,7 +53,7 @@ public class Call implements Iled, Igen {
     public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
 
         Symbol method_smb = self.first();
-        method_smb.first().invokeGen(g, true);
+        method_smb.first().invokeRval(g, true);
 
         @SuppressWarnings("unchecked")
         List<Symbol> args = (List<Symbol>) self.second;
@@ -71,7 +63,7 @@ public class Call implements Iled, Igen {
             Symbol arg = args.get(i);
             Type formal_type = param_types[i];
 
-            arg.invokeGen(g, true);
+            arg.invokeRval(g, true);
             TypeUtils.fixType(arg.type, formal_type, g.getLocation());
         }
 

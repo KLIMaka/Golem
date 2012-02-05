@@ -5,13 +5,13 @@ import gnu.bytecode.Type;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.parser.Parser;
-import golem.symbol.Igen;
+import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
 import golem.typesystem.TypeUtils;
 
-public class If_ implements Inud, Igen {
+public class If_ implements Inud, IRvalue {
 
     public static If_ instance = new If_();
 
@@ -37,7 +37,7 @@ public class If_ implements Inud, Igen {
         }
 
         self.type = type;
-        self.gen = instance;
+        self.rval = instance;
 
         return self;
     }
@@ -45,17 +45,17 @@ public class If_ implements Inud, Igen {
     @Override
     public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
 
-        self.first().invokeGen(g, true);
+        self.first().invokeRval(g, true);
         Label lab = g.getLabel();
         g.ife_(lab);
-        self.second().invokeGen(g, genResult);
+        self.second().invokeRval(g, genResult);
         TypeUtils.fixType(self.second().type, self.type, g.getLocation());
 
         if (self.third != null) {
             Label lab1 = g.getLabel();
             g.jmp(lab1);
             lab.define(g.getLocation());
-            self.third().invokeGen(g, genResult);
+            self.third().invokeRval(g, genResult);
             TypeUtils.fixType(self.third().type, self.type, g.getLocation());
             lab1.define(g.getLocation());
         } else {

@@ -7,7 +7,7 @@ import gnu.bytecode.Type;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.parser.Parser;
-import golem.symbol.Igen;
+import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
@@ -15,7 +15,7 @@ import golem.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.List;
 
-public class New implements Inud, Igen {
+public class New implements Inud, IRvalue {
 
     public static New instance = new New();
 
@@ -54,7 +54,7 @@ public class New implements Inud, Igen {
         self.second = args;
         self.third = ctor;
         self.type = type;
-        self.gen = instance;
+        self.rval = instance;
 
         return self;
     }
@@ -70,7 +70,7 @@ public class New implements Inud, Igen {
         @SuppressWarnings("unchecked")
         List<Symbol> args = (List<Symbol>) self.second;
         for (Symbol arg : args) {
-            arg.invokeGen(g, true);
+            arg.invokeRval(g, true);
         }
         code.emitInvoke((Method) self.third);
 

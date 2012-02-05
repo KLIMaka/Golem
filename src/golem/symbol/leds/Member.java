@@ -1,19 +1,26 @@
 package golem.symbol.leds;
 
+import static ch.lambdaj.Lambda.filter;
+import static ch.lambdaj.Lambda.having;
+import static ch.lambdaj.Lambda.on;
 import gnu.bytecode.ClassType;
 import gnu.bytecode.Field;
 import gnu.bytecode.Method;
-import gnu.bytecode.Type;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.lex.Token;
 import golem.parser.Parser;
-import golem.symbol.Igen;
+import golem.symbol.ILvalue;
+import golem.symbol.IRvalue;
 import golem.symbol.Iled;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
+import golem.typesystem.Methods;
+import golem.typesystem.TypeUtils;
 
-public class Member implements Iled, Igen {
+import java.util.List;
+
+class Member implements Iled, IRvalue, ILvalue {
 
     public static Member instance = new Member();
 
@@ -26,25 +33,17 @@ public class Member implements Iled, Igen {
         }
 
         Symbol field_name = p.ncurrent();
-        Type type = null;
-        Field field = null;
-        Method method = null;
+        gnu.bytecode.Member member = null;
+        ClassType clazz = (ClassType) left.type;
+        String name = field_name.toString();
         if (left.type instanceof ClassType) {
-            ClassType left_class = (ClassType) left.type;
-            field = left_class.getField(field_name.toString());
-            if (field == null) {
-                method = left_class.getDeclaredMethod(field_name.toString(), null);
-                if (method == null && left_class.isInterface()) {
-                    method = ClassType.objectType.getDeclaredMethod(field_name.toString(), null);
-                }
-                if (method == null) {
-                    self.token.error("Undefined field '" + field_name.toString() + "' in "
-                            + left_class.getName());
-                } else {
-                    type = method.getReturnType();
-                }
-            } else {
-                type = field.getType();
+            member = TypeUtils.resolveMember(clazz, name);
+            if (member instanceof Field) {
+                self.type = ((Field) member).getType();
+                self.lval = instance;
+            }
+            if (member instanceof Method) {
+                self.tags.put("method", new Methods(clazz, name));
             }
         } else {
             self.token.error("Expected a class type.");
@@ -52,9 +51,8 @@ public class Member implements Iled, Igen {
 
         self.first = left;
         self.second = field_name;
-        self.third = field != null ? field : method;
-        self.type = type;
-        self.gen = instance;
+        self.third = member;
+        self.rval = instance;
         p.advance();
 
         return self;
@@ -63,16 +61,38 @@ public class Member implements Iled, Igen {
     @Override
     public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
 
-        Type left_type = self.first().type;
+        if (genResult) {
 
-        if (left_type instanceof ClassType) {
-            if (genResult) {
+            if (self.third instanceof Field) {
                 Field field = (Field) self.third;
-                g.getLocation().emitGetStatic(field);
+                if (field.getStaticFlag()) {
+                    g.getLocation().emitGetStatic(field);
+                } else {
+                    self.first().invokeRval(g, true);
+                    g.getLocation().emitGetField(field);
+                }
             }
-        } else {
-            self.token.genError("Expected a class type.");
+
+            if (self.third instanceof Method) {
+                Methods methods = (Methods) self.tag("method");
+                List<Method> stat = filter(having(on(Method.class).getStaticFlag()), methods.get());
+            }
         }
 
+    }
+
+    @Override
+    public void invoke(Symbol self, Gen gen, Symbol val) throws GenException {
+
+        Field field = (Field) self.third;
+        if (!field.getStaticFlag()) {
+            self.first().invokeRval(gen, true);
+        }
+        val.invokeRval(gen, true);
+        if (field.getStaticFlag()) {
+            gen.getLocation().emitPutStatic(field);
+        } else {
+            gen.getLocation().emitPutField(field);
+        }
     }
 }

@@ -4,13 +4,13 @@ import gnu.bytecode.Type;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.parser.Parser;
-import golem.symbol.Igen;
+import golem.symbol.IRvalue;
 import golem.symbol.Iled;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
 import golem.typesystem.TypeUtils;
 
-public class Bin implements Iled, Igen {
+public class Bin implements Iled, IRvalue {
 
     public static Bin instance = new Bin();
 
@@ -27,7 +27,7 @@ public class Bin implements Iled, Igen {
         self.first = left;
         self.second = right;
         self.type = type;
-        self.gen = instance;
+        self.rval = instance;
 
         return self;
     }
@@ -35,11 +35,11 @@ public class Bin implements Iled, Igen {
     @Override
     public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
 
-        self.first().invokeGen(g, genResult);
+        self.first().invokeRval(g, genResult);
         if (genResult) {
             TypeUtils.fixType(self.first().type, self.type, g.getLocation());
         }
-        self.second().invokeGen(g, genResult);
+        self.second().invokeRval(g, genResult);
         if (genResult) {
             TypeUtils.fixType(self.second().type, self.type, g.getLocation());
         }

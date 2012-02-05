@@ -2,26 +2,12 @@ import java.util.regex.*;
 import java.util.*;
 import java.net.*;
 import gnu.bytecode.*;
-
 import gnu.bytecode.ClassType.*;
+import golem.frontend.*;
 
-def ct = new ClassType("myc");
-ct.setSuper("java.lang.Object");
-ct.addInterface(ClassType.make("java.lang.Runnable"));
-ct.setModifiers(Access.PUBLIC);
-def m = ct.addMethod("run", "()V", Access.PUBLIC);
-def code = m.startCode();
-
-code.pushScope();
-code.emitPushInt(1);
-code.emitPushInt(2);
-code.emitAdd(Type.intType);
-code.emitReturn();
-code.popScope();
-
-def cl = new ArrayClassLoader();
-cl.addClass("myc", ct.writeToArray());
-
-def helloWorldClass = cl.loadClass("myc", true);
-System.out.println(ClassType.make("myc"));
-
+def fo = new foo();
+fo.f = new foo();
+fo.f.f = new foo();
+//System.out = null;
+//def p = System.out.println;
+System.out.println(fo.f);

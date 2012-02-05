@@ -3,7 +3,7 @@ package golem.symbol.nuds;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.parser.Parser;
-import golem.symbol.Igen;
+import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
@@ -11,7 +11,7 @@ import golem.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Block implements Inud, Igen {
+public class Block implements Inud, IRvalue {
 
     public static Block instance = new Block();
 
@@ -30,7 +30,7 @@ public class Block implements Inud, Igen {
         p.popScope();
         self.first = lst;
         self.type = lst.get(lst.size() - 1).type;
-        self.gen = instance;
+        self.rval = instance;
 
         return self;
     }
@@ -44,9 +44,9 @@ public class Block implements Inud, Igen {
         for (Symbol smb : lst) {
             size--;
             if (size == 0 && genReresult) {
-                smb.invokeGen(g, true);
+                smb.invokeRval(g, true);
             } else {
-                smb.invokeGen(g, false);
+                smb.invokeRval(g, false);
             }
         }
     }

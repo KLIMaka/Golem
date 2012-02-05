@@ -1,9 +1,5 @@
 package golem.frontend;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import kawa.lib.arrays;
 
 public class foo {
     static void foo1() {
@@ -18,4 +14,6 @@ public class foo {
     public void a(int a) {
 
     }
+
+    public foo f;
 }

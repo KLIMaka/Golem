@@ -55,7 +55,7 @@ public class Gen {
     }
 
     public void store(Symbol smb) {
-        Variable var = m_locals.get(smb);
+        Variable var = m_locals.get(smb.proto);
         m_code.emitStore(var);
     }
 
@@ -163,7 +163,6 @@ public class Gen {
     }
 
     public void invokeVirtual(String clazz, String method) {
-        m_code.emitInvokeVirtual(ClassType.make(clazz).getMethod(method,
-                new Type[] { Type.intType }));
+        m_code.emitInvokeVirtual(ClassType.make(clazz).getMethod(method, new Type[] { Type.intType }));
     }
 }

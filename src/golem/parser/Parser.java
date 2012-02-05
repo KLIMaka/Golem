@@ -172,7 +172,8 @@ public class Parser {
             m_current.lbp = proto.lbp;
             m_current.nud = proto.nud;
             m_current.led = proto.led;
-            m_current.gen = proto.gen;
+            m_current.rval = proto.rval;
+            m_current.lval = proto.lval;
             m_current.proto = proto;
         }
     }
@@ -229,7 +230,7 @@ public class Parser {
 
         Symbol p = new Symbol();
         p.first = prog;
-        p.gen = Block.instance;
+        p.rval = Block.instance;
         return p;
     }
 }

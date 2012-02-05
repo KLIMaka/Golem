@@ -104,6 +104,10 @@ public class TypeUtils {
             return false;
         }
 
+        if (args == null) {
+            return true;
+        }
+
         Type[] formals = method.getParameterTypes();
         if (formals.length != args.length) {
             return false;
@@ -128,38 +132,38 @@ public class TypeUtils {
         return ret.substring(1);
     }
 
-    public static Class<?> resolveClass(String name, List<String> imports) {
+    public static ClassType resolveClass(String name, List<String> imports) {
         try {
-            return Class.forName(name);
+            Class.forName(name);
+            return new ClassType(name);
         } catch (Exception e) {
             if (imports != null) {
                 for (String prefix : imports) {
                     try {
-                        return Class.forName(prefix + "." + name);
-                    } catch (Exception e1) {
-                    }
+                        Class.forName(prefix + "." + name);
+                        return new ClassType(prefix + "." + name);
+                    } catch (Exception e1) {}
                 }
             }
         }
         return null;
     }
 
-    public static Member resolveName(String name) {
+    public static Member resolveName(String name, List<String> imports) {
 
         String[] parts = name.split("\\.");
         int len = parts.length;
 
         ClassType ct = null;
         int i;
-        for (i = len - 1; i > 0; i--) {
-            try {
-                String className = arrToName(parts, 0, i);
-                Class.forName(className);
-                ct = ClassType.make(className);
-                break;
-            } catch (Exception e) {
-            }
+        for (i = len; i > 0; i--) {
+            String className = arrToName(parts, 0, i);
+            ct = resolveClass(className, imports);
+            if (ct != null) break;
         }
+
+        if (i == len) return ct;
+        if (ct == null) return null;
 
         System.out.println("class: " + ct.toString());
         for (;; i++) {
@@ -182,7 +186,7 @@ public class TypeUtils {
         return null;
     }
 
-    public static Method searchMethod(ClassType ct, String name, Type[] args) {
+    public static List<Method> searchMethod(ClassType ct, String name, Type[] args) {
 
         ArrayList<Method> methods = new ArrayList<Method>();
         for (ClassType clazz = ct; clazz != null; clazz = clazz.getSuperclass()) {
@@ -211,11 +215,24 @@ public class TypeUtils {
         }
 
         if (methods.size() > 0) {
-            return methods.get(0);
+            return methods;
         } else {
             return null;
         }
+    }
 
+    public static Member resolveMember(ClassType clazz, String name) {
+
+        Field field = clazz.getField(name);
+        if (field == null) {
+            Method method = clazz.getDeclaredMethod(name, null);
+            if (method == null && clazz.isInterface()) {
+                return ClassType.objectType.getDeclaredMethod(name, null);
+            }
+            return method;
+        } else {
+            return field;
+        }
     }
 
 }

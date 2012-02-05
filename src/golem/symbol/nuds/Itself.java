@@ -5,12 +5,13 @@ import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.lex.Token;
 import golem.parser.Parser;
-import golem.symbol.Igen;
+import golem.symbol.ILvalue;
+import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
 
-public class Itself implements Inud, Igen {
+public class Itself implements Inud, IRvalue, ILvalue {
 
     public static Itself instance = new Itself();
 
@@ -20,6 +21,7 @@ public class Itself implements Inud, Igen {
         switch (self.token.type) {
         case Token.ID:
             self.type = self.proto.type;
+            self.lval = instance;
             break;
         case Token.CHAR:
             self.type = Type.charType;
@@ -39,7 +41,7 @@ public class Itself implements Inud, Igen {
             break;
         }
 
-        self.gen = instance;
+        self.rval = instance;
         return self;
     }
 
@@ -74,5 +76,11 @@ public class Itself implements Inud, Igen {
         } catch (Exception e) {
             g.integer(0);
         }
+    }
+
+    @Override
+    public void invoke(Symbol self, Gen gen, Symbol val) throws GenException {
+        val.invokeRval(gen, true);
+        gen.store(self.proto);
     }
 }

@@ -4,12 +4,12 @@ import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.lex.Token;
 import golem.parser.Parser;
-import golem.symbol.Igen;
+import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
 
-public class Import implements Inud, Igen {
+public class Import implements Inud, IRvalue {
 
     public static Import instance = new Import();
 
@@ -35,12 +35,11 @@ public class Import implements Inud, Igen {
 
         p.scope().addImport(imp);
         self.first = imp;
-        self.gen = instance;
+        self.rval = instance;
         return self;
     }
 
     @Override
-    public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
-    }
+    public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {}
 
 }

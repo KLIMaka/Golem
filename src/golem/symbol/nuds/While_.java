@@ -5,12 +5,12 @@ import gnu.bytecode.Variable;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.parser.Parser;
-import golem.symbol.Igen;
+import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
 
-public class While_ implements Inud, Igen {
+public class While_ implements Inud, IRvalue {
 
     public static While_ instance = new While_();
 
@@ -22,7 +22,7 @@ public class While_ implements Inud, Igen {
         p.advance(")");
         self.second = p.expression(0);
         self.type = self.second().type;
-        self.gen = instance;
+        self.rval = instance;
 
         return self;
     }
@@ -38,10 +38,10 @@ public class While_ implements Inud, Igen {
             Label start = g.getLabel();
             g.jmp(check);
             start.define(g.getLocation());
-            self.second().invokeGen(g, true);
+            self.second().invokeRval(g, true);
             g.genSore(res);
             check.define(g.getLocation());
-            self.first().invokeGen(g, true);
+            self.first().invokeRval(g, true);
             g.ifn_(start);
             g.genLoad(res);
         } else {
@@ -49,9 +49,9 @@ public class While_ implements Inud, Igen {
             Label start = g.getLabel();
             g.jmp(check);
             start.define(g.getLocation());
-            self.second().invokeGen(g, false);
+            self.second().invokeRval(g, false);
             check.define(g.getLocation());
-            self.first().invokeGen(g, true);
+            self.first().invokeRval(g, true);
             g.ifn_(start);
         }
 

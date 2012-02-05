@@ -4,12 +4,12 @@ import gnu.bytecode.Type;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.parser.Parser;
-import golem.symbol.Igen;
+import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
 
-public class Typeof implements Igen, Inud {
+public class Typeof implements IRvalue, Inud {
 
     public static Typeof instance = new Typeof();
 
@@ -20,7 +20,7 @@ public class Typeof implements Igen, Inud {
         self.first = p.expression(0);
         p.advance(")");
         self.type = Type.javalangStringType;
-        self.gen = instance;
+        self.rval = instance;
         return self;
     }
 

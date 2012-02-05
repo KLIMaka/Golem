@@ -4,7 +4,6 @@ import gnu.bytecode.Type;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.lex.Token;
-import golem.lex.Token1;
 import golem.parser.Scope;
 import golem.symbol.leds.Null_led;
 import golem.symbol.nuds.Null_nud;
@@ -15,11 +14,11 @@ import java.util.Map;
 public class Symbol {
 
     public Token               token  = null;
-    public Token1              token1 = null;
     public int                 lbp    = 0;
     public Inud                nud    = Null_nud.instance;
     public Iled                led    = Null_led.instance;
-    public Igen                gen    = null;
+    public IRvalue             rval   = null;
+    public ILvalue             lval   = null;
     public Symbol              proto  = null;
     public Scope               scope  = null;
     public Type                type   = null;
@@ -38,8 +37,12 @@ public class Symbol {
         tags.put(name, o);
     }
 
-    public void invokeGen(Gen g, boolean genResult) throws GenException {
-        gen.invoke(this, g, genResult);
+    public void invokeRval(Gen g, boolean genResult) throws GenException {
+        rval.invoke(this, g, genResult);
+    }
+
+    public void invokeLval(Gen g, Symbol val) throws GenException {
+        lval.invoke(this, g, val);
     }
 
     public Symbol first() {
@@ -62,7 +65,7 @@ public class Symbol {
         smb.lbp = lbp;
         smb.nud = nud;
         smb.led = led;
-        smb.gen = gen;
+        smb.rval = rval;
         smb.proto = proto;
         smb.scope = scope;
         smb.tags = new HashMap<String, Object>(tags);
