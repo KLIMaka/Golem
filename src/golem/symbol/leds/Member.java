@@ -20,7 +20,7 @@ import golem.typesystem.TypeUtils;
 
 import java.util.List;
 
-class Member implements Iled, IRvalue, ILvalue {
+public class Member implements Iled, IRvalue, ILvalue {
 
     public static Member instance = new Member();
 
