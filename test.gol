@@ -5,9 +5,5 @@ import gnu.bytecode.*;
 import gnu.bytecode.ClassType.*;
 import golem.frontend.*;
 
-def fo = new foo();
-fo.f = new foo();
-fo.f.f = new foo();
-//System.out = null;
-//def p = System.out.println;
-System.out.println(fo.f);
+def p = System.console;
+System.out.printf(p.console());

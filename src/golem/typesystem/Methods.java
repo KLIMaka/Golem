@@ -24,4 +24,8 @@ public class Methods {
         return TypeUtils.searchMethod(m_clazz, m_name, null);
     }
 
+    public String getName() {
+        return m_name;
+    }
+
 }

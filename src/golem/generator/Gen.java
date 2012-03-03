@@ -22,9 +22,11 @@ public class Gen {
     private ClassType             m_class;
     private Method                m_method;
     private CodeAttr              m_code;
+    private ArrayClassLoader      m_classLoader;
 
-    public Gen() {
+    public Gen(ArrayClassLoader cl) {
 
+        m_classLoader = cl;
         m_class = new ClassType("GolemExec");
         m_class.setSuper("java.lang.Object");
         m_class.setModifiers(Access.PUBLIC);
@@ -46,10 +48,9 @@ public class Gen {
         ClassTypeWriter.print(m_class, System.out, 0);
 
         byte[] classFile = m_class.writeToArray();
-        ArrayClassLoader cl = new ArrayClassLoader();
-        cl.addClass("GolemExec", classFile);
+        m_classLoader.addClass("GolemExec", classFile);
 
-        Class<?> helloWorldClass = cl.loadClass("GolemExec", true);
+        Class<?> helloWorldClass = m_classLoader.loadClass("GolemExec", true);
         Class<?>[] argTypes = new Class[] {};
         helloWorldClass.getMethod("exec", argTypes).invoke(null);
     }
@@ -164,5 +165,9 @@ public class Gen {
 
     public void invokeVirtual(String clazz, String method) {
         m_code.emitInvokeVirtual(ClassType.make(clazz).getMethod(method, new Type[] { Type.intType }));
+    }
+
+    public ArrayClassLoader getClassLoader() {
+        return m_classLoader;
     }
 }

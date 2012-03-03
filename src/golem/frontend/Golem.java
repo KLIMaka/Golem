@@ -22,7 +22,7 @@ public class Golem {
         Parser p = new Parser(expr);
         Symbol res = p.program();
         System.out.println(res);
-        Gen g = new Gen();
+        Gen g = new Gen(p.getClassLoader());
         g.begin();
         res.invokeRval(g, false);
         g.end();

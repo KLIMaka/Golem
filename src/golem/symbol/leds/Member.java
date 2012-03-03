@@ -1,8 +1,5 @@
 package golem.symbol.leds;
 
-import static ch.lambdaj.Lambda.filter;
-import static ch.lambdaj.Lambda.having;
-import static ch.lambdaj.Lambda.on;
 import gnu.bytecode.ClassType;
 import gnu.bytecode.Field;
 import gnu.bytecode.Method;
@@ -15,10 +12,10 @@ import golem.symbol.IRvalue;
 import golem.symbol.Iled;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
+import golem.symbol.nuds.ClassName;
 import golem.typesystem.Methods;
 import golem.typesystem.TypeUtils;
-
-import java.util.List;
+import golem.utils.Utils;
 
 public class Member implements Iled, IRvalue, ILvalue {
 
@@ -43,7 +40,15 @@ public class Member implements Iled, IRvalue, ILvalue {
                 self.lval = instance;
             }
             if (member instanceof Method) {
-                self.tags.put("method", new Methods(clazz, name));
+                try {
+                    Methods methods = new Methods(clazz, name);
+                    ClassType cl = Utils.createFunctionType(methods, p.getClassLoader());
+                    self.tags.put("method", cl);
+                    self.type = cl;
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                    throw new ParseException("");
+                }
             }
         } else {
             self.token.error("Expected a class type.");
@@ -62,7 +67,6 @@ public class Member implements Iled, IRvalue, ILvalue {
     public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
 
         if (genResult) {
-
             if (self.third instanceof Field) {
                 Field field = (Field) self.third;
                 if (field.getStaticFlag()) {
@@ -74,8 +78,13 @@ public class Member implements Iled, IRvalue, ILvalue {
             }
 
             if (self.third instanceof Method) {
-                Methods methods = (Methods) self.tag("method");
-                List<Method> stat = filter(having(on(Method.class).getStaticFlag()), methods.get());
+                if (self.first().nud instanceof ClassName) {
+                    ClassType cl = (ClassType) self.tag("method");
+                    g.getLocation().emitNew(cl);
+
+                } else {
+
+                }
             }
         }
 

@@ -1,5 +1,6 @@
 package golem.parser;
 
+import gnu.bytecode.ArrayClassLoader;
 import golem.lex.Lexer;
 import golem.lex.Token;
 import golem.symbol.Iled;
@@ -30,9 +31,10 @@ import java.util.Map;
 public class Parser {
 
     private Lexer               m_lex;
-    private Symbol              m_current = new Symbol();
-    private Map<String, Symbol> m_symbols = new HashMap<String, Symbol>();
-    private Scope               m_scope   = new Scope();
+    private Symbol              m_current     = new Symbol();
+    private Map<String, Symbol> m_symbols     = new HashMap<String, Symbol>();
+    private Scope               m_scope       = new Scope();
+    private ArrayClassLoader    m_classLoader = new ArrayClassLoader();
 
     protected Symbol symbol(String smb, int bp) {
 
@@ -232,5 +234,9 @@ public class Parser {
         p.first = prog;
         p.rval = Block.instance;
         return p;
+    }
+
+    public ArrayClassLoader getClassLoader() {
+        return m_classLoader;
     }
 }
