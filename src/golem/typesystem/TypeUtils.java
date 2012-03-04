@@ -13,19 +13,19 @@ import java.util.List;
 
 public class TypeUtils {
 
-    public static Type arithmType(Type lh, Type rh) {
+    public static ITypeResolver arithmType(Type lh, Type rh) {
 
         int cmp = rh.compare(lh);
         if (cmp > 0) {
-            return rh;
+            return new PlainOldTypeResilver(rh);
         } else if (cmp == 0) {
             if (rh instanceof PrimType) {
-                return rh;
+                return new PlainOldTypeResilver(rh);
             }
-            return lh;
+            return new PlainOldTypeResilver(lh);
         } else if (cmp == -1) {
 
-            return lh;
+            return new PlainOldTypeResilver(lh);
         } else {
             return null;
         }
@@ -226,7 +226,7 @@ public class TypeUtils {
         Field field = clazz.getField(name);
         if (field == null) {
             Method method = clazz.getDeclaredMethod(name, null);
-            if (method == null && clazz.isInterface()) {
+            if (method == null) {
                 return ClassType.objectType.getDeclaredMethod(name, null);
             }
             return method;

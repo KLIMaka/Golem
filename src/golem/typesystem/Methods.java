@@ -17,7 +17,11 @@ public class Methods {
     }
 
     public Method match(Type[] args) {
-        return TypeUtils.searchMethod(m_clazz, m_name, args).get(0);
+        List<Method> m = TypeUtils.searchMethod(m_clazz, m_name, args);
+        if (m == null) {
+            return null;
+        }
+        return m.get(0);
     }
 
     public List<Method> get() {
@@ -26,6 +30,10 @@ public class Methods {
 
     public String getName() {
         return m_name;
+    }
+
+    public ClassType getClazz() {
+        return m_clazz;
     }
 
 }

@@ -11,6 +11,7 @@ import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
+import golem.typesystem.PlainOldTypeResilver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class New implements Inud, IRvalue {
         while (!p.current().toString().equals(")")) {
             Symbol expr = p.expression(0);
             args.add(expr);
-            types.add(expr.type);
+            types.add(expr.type.get());
 
             if (p.current().toString().equals(")")) {
                 break;
@@ -53,7 +54,7 @@ public class New implements Inud, IRvalue {
         self.first = clazz;
         self.second = args;
         self.third = ctor;
-        self.type = type;
+        self.type = new PlainOldTypeResilver(type);
         self.rval = instance;
 
         return self;

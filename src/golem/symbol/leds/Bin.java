@@ -1,6 +1,5 @@
 package golem.symbol.leds;
 
-import gnu.bytecode.Type;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.parser.Parser;
@@ -8,6 +7,7 @@ import golem.symbol.IRvalue;
 import golem.symbol.Iled;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
+import golem.typesystem.ITypeResolver;
 import golem.typesystem.TypeUtils;
 
 public class Bin implements Iled, IRvalue {
@@ -18,16 +18,17 @@ public class Bin implements Iled, IRvalue {
     public Symbol invoke(Symbol self, Parser p, Symbol left) throws ParseException {
 
         Symbol right = p.expression(self.lbp);
+        try {
 
-        Type type = TypeUtils.arithmType(left.type, right.type);
-        if (type == null) {
+            ITypeResolver type = TypeUtils.arithmType(left.type.get(), right.type.get());
+            self.first = left;
+            self.second = right;
+            self.type = type;
+            self.rval = instance;
+
+        } catch (Exception e) {
             self.token.error("Incompatible arguments.");
         }
-
-        self.first = left;
-        self.second = right;
-        self.type = type;
-        self.rval = instance;
 
         return self;
     }
@@ -37,11 +38,11 @@ public class Bin implements Iled, IRvalue {
 
         self.first().invokeRval(g, genResult);
         if (genResult) {
-            TypeUtils.fixType(self.first().type, self.type, g.getLocation());
+            TypeUtils.fixType(self.first().type.get(), self.type.get(), g.getLocation());
         }
         self.second().invokeRval(g, genResult);
         if (genResult) {
-            TypeUtils.fixType(self.second().type, self.type, g.getLocation());
+            TypeUtils.fixType(self.second().type.get(), self.type.get(), g.getLocation());
         }
 
         if (genResult) {

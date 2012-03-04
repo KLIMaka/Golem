@@ -6,6 +6,8 @@ import golem.symbol.leds.Null_led;
 import golem.symbol.nuds.ClassName;
 import golem.symbol.nuds.Itself;
 import golem.symbol.nuds.Null_nud;
+import golem.typesystem.ITypeResolver;
+import golem.typesystem.PlainOldTypeResilver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +62,7 @@ public class Scope {
         m_imports.add(imp);
     }
 
-    public Type resolveImport(String name) {
+    public ITypeResolver resolveImport(String name) {
 
         for (String imp : m_imports) {
             final Pattern pat = Pattern.compile("^(([a-z0-9_]+\\.)+)(.+)");
@@ -69,17 +71,16 @@ public class Scope {
             String first = m.group(1);
             try {
                 Class.forName(first + name);
-                return Type.getType(first + name);
-            } catch (Exception e) {
-            }
+                return new PlainOldTypeResilver(Type.getType(first + name));
+            } catch (Exception e) {}
         }
 
         return null;
     }
 
-    public Type resolveImportExt(String name) {
+    public ITypeResolver resolveImportExt(String name) {
 
-        Type ret = resolveImport(name);
+        ITypeResolver ret = resolveImport(name);
         if (ret != null) {
             return ret;
         }

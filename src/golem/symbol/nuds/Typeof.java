@@ -8,6 +8,7 @@ import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
+import golem.typesystem.PlainOldTypeResilver;
 
 public class Typeof implements IRvalue, Inud {
 
@@ -19,7 +20,7 @@ public class Typeof implements IRvalue, Inud {
         p.advance("(");
         self.first = p.expression(0);
         p.advance(")");
-        self.type = Type.javalangStringType;
+        self.type = new PlainOldTypeResilver(Type.javalangStringType);
         self.rval = instance;
         return self;
     }
@@ -28,7 +29,7 @@ public class Typeof implements IRvalue, Inud {
     public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
 
         if (genResult) {
-            g.string(self.first().type.getName());
+            g.string(self.first().type.get().getName());
         }
     }
 

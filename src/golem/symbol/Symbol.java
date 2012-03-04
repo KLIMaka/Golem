@@ -1,12 +1,12 @@
 package golem.symbol;
 
-import gnu.bytecode.Type;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.lex.Token;
 import golem.parser.Scope;
 import golem.symbol.leds.Null_led;
 import golem.symbol.nuds.Null_nud;
+import golem.typesystem.ITypeResolver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +21,7 @@ public class Symbol {
     public ILvalue             lval   = null;
     public Symbol              proto  = null;
     public Scope               scope  = null;
-    public Type                type   = null;
+    public ITypeResolver       type   = null;
 
     public Map<String, Object> tags   = new HashMap<String, Object>(0);
 

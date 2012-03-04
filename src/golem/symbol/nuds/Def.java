@@ -8,6 +8,7 @@ import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
+import golem.typesystem.StaticFunctionTypeResolver;
 
 public class Def implements Inud, IRvalue {
 
@@ -38,11 +39,13 @@ public class Def implements Inud, IRvalue {
     @Override
     public void invoke(Symbol self, Gen g, boolean genResult) throws ParseException, GenException {
 
-        self.second().invokeRval(g, true);
-        g.define(self.first());
-        if (genResult) {
-            g.dup();
+        if (!(self.type instanceof StaticFunctionTypeResolver)) {
+            self.second().invokeRval(g, true);
+            g.define(self.first());
+            if (genResult) {
+                g.dup();
+            }
+            g.store(self.first());
         }
-        g.store(self.first());
     }
 }

@@ -66,7 +66,7 @@ public class Gen {
     }
 
     public void define(Symbol smb) {
-        Variable var = m_code.addLocal(smb.type, smb.toString());
+        Variable var = m_code.addLocal(smb.type.get(), smb.toString());
         m_locals.put(smb, var);
     }
 

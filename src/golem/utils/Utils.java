@@ -3,7 +3,9 @@ package golem.utils;
 import gnu.bytecode.Access;
 import gnu.bytecode.ArrayClassLoader;
 import gnu.bytecode.ClassType;
+import gnu.bytecode.ClassTypeWriter;
 import gnu.bytecode.CodeAttr;
+import gnu.bytecode.Field;
 import gnu.bytecode.Method;
 import gnu.bytecode.Type;
 import golem.typesystem.Methods;
@@ -39,19 +41,20 @@ public class Utils {
         ClassType clazz = new ClassType("_" + methods.getName());
         clazz.setSuper("java.lang.Object");
         clazz.setModifiers(Access.PUBLIC);
+        Field self = clazz.addField("self", methods.getClazz());
 
         for (gnu.bytecode.Method m : methods.get()) {
 
             String params = "";
             List<Type> types = Arrays.asList(m.getParameterTypes());
-            if (types.size() != 0)
-                params = Lambda.joinFrom(types).getSignature();
+            if (types.size() != 0) params = Lambda.joinFrom(types, "").getSignature();
 
             Method mm = clazz.addMethod(methods.getName(), "(" + params + ")" + m.getReturnType().getSignature(),
-                    Access.PUBLIC | Access.STATIC);
+                    Access.PUBLIC);
             CodeAttr code = mm.startCode();
             code.pushScope();
 
+            code.emitGetField(self);
             for (int i = 0; i < types.size(); i++)
                 code.emitLoad(code.addLocal(types.get(i).getRealType()));
 
@@ -62,7 +65,8 @@ public class Utils {
 
         byte[] classFile = clazz.writeToArray();
         cl.addClass("_" + methods.getName(), classFile);
-
-        return (ClassType) ClassType.make(cl.loadClass("_" + methods.getName(), true));
+        ClassType ct = (ClassType) ClassType.make(cl.loadClass("_" + methods.getName(), true));
+        ClassTypeWriter.print(clazz, System.out, 0);
+        return ct;
     }
 }

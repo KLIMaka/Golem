@@ -9,6 +9,7 @@ import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
+import golem.typesystem.PlainOldTypeResilver;
 import golem.typesystem.TypeUtils;
 
 public class If_ implements Inud, IRvalue {
@@ -28,15 +29,15 @@ public class If_ implements Inud, IRvalue {
             self.third = p.expression(0);
         }
 
-        Type type = self.second().type;
+        Type type = self.second().type.get();
         if (self.third != null) {
-            type = TypeUtils.widerType(self.second().type, self.third().type);
+            type = TypeUtils.widerType(self.second().type.get(), self.third().type.get());
             if (type == null) {
                 self.token.error("Incompatible types.");
             }
         }
 
-        self.type = type;
+        self.type = new PlainOldTypeResilver(type);
         self.rval = instance;
 
         return self;
@@ -49,14 +50,14 @@ public class If_ implements Inud, IRvalue {
         Label lab = g.getLabel();
         g.ife_(lab);
         self.second().invokeRval(g, genResult);
-        TypeUtils.fixType(self.second().type, self.type, g.getLocation());
+        TypeUtils.fixType(self.second().type.get(), self.type.get(), g.getLocation());
 
         if (self.third != null) {
             Label lab1 = g.getLabel();
             g.jmp(lab1);
             lab.define(g.getLocation());
             self.third().invokeRval(g, genResult);
-            TypeUtils.fixType(self.third().type, self.type, g.getLocation());
+            TypeUtils.fixType(self.third().type.get(), self.type.get(), g.getLocation());
             lab1.define(g.getLocation());
         } else {
             lab.define(g.getLocation());
