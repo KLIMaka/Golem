@@ -9,7 +9,7 @@ import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
-import golem.typesystem.PlainOldTypeResilver;
+import golem.typesystem.PlainOldTypeResolver;
 
 public class Null implements IRvalue, Inud {
 
@@ -18,7 +18,7 @@ public class Null implements IRvalue, Inud {
     @Override
     public Symbol invoke(Symbol self, Parser p) throws ParseException {
 
-        self.type = new PlainOldTypeResilver(Type.nullType);
+        self.type = new PlainOldTypeResolver(Type.nullType);
         self.rval = instance;
         return self;
     }

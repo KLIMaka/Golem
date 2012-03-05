@@ -10,7 +10,7 @@ import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
-import golem.typesystem.PlainOldTypeResilver;
+import golem.typesystem.PlainOldTypeResolver;
 
 public class Itself implements Inud, IRvalue, ILvalue {
 
@@ -25,20 +25,20 @@ public class Itself implements Inud, IRvalue, ILvalue {
             self.lval = instance;
             break;
         case Token.CHAR:
-            self.type = new PlainOldTypeResilver(Type.charType);
+            self.type = new PlainOldTypeResolver(Type.charType);
             break;
         case Token.INT:
-            self.type = new PlainOldTypeResilver(Type.intType);
+            self.type = new PlainOldTypeResolver(Type.intType);
             break;
         case Token.FLOAT:
-            self.type = new PlainOldTypeResilver(Type.floatType);
+            self.type = new PlainOldTypeResolver(Type.floatType);
             break;
         case Token.STRING:
-            self.type = new PlainOldTypeResilver(Type.javalangStringType);
+            self.type = new PlainOldTypeResolver(Type.javalangStringType);
             break;
 
         default:
-            self.type = new PlainOldTypeResilver(Type.errorType);
+            self.type = new PlainOldTypeResolver(Type.errorType);
             break;
         }
 

@@ -7,7 +7,7 @@ import golem.symbol.nuds.ClassName;
 import golem.symbol.nuds.Itself;
 import golem.symbol.nuds.Null_nud;
 import golem.typesystem.ITypeResolver;
-import golem.typesystem.PlainOldTypeResilver;
+import golem.typesystem.PlainOldTypeResolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,8 +71,9 @@ public class Scope {
             String first = m.group(1);
             try {
                 Class.forName(first + name);
-                return new PlainOldTypeResilver(Type.getType(first + name));
-            } catch (Exception e) {}
+                return new PlainOldTypeResolver(Type.getType(first + name));
+            } catch (Exception e) {
+            }
         }
 
         return null;

@@ -224,16 +224,21 @@ public class Parser {
 
     public Symbol program() throws ParseException {
 
-        ArrayList<Symbol> prog = new ArrayList<Symbol>();
-        while (!m_lex.eoi()) {
-            prog.add(expression(0));
-            advanceSoft(";");
-        }
+        try {
+            ArrayList<Symbol> prog = new ArrayList<Symbol>();
+            while (!m_lex.eoi()) {
+                prog.add(expression(0));
+                advanceSoft(";");
+            }
 
-        Symbol p = new Symbol();
-        p.first = prog;
-        p.rval = Block.instance;
-        return p;
+            Symbol p = new Symbol();
+            p.first = prog;
+            p.rval = Block.instance;
+            return p;
+        } catch (Exception e) {
+            m_current.token.error("Java exception");
+        }
+        return null;
     }
 
     public ArrayClassLoader getClassLoader() {

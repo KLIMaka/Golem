@@ -17,15 +17,15 @@ public class TypeUtils {
 
         int cmp = rh.compare(lh);
         if (cmp > 0) {
-            return new PlainOldTypeResilver(rh);
+            return new PlainOldTypeResolver(rh);
         } else if (cmp == 0) {
             if (rh instanceof PrimType) {
-                return new PlainOldTypeResilver(rh);
+                return new PlainOldTypeResolver(rh);
             }
-            return new PlainOldTypeResilver(lh);
+            return new PlainOldTypeResolver(lh);
         } else if (cmp == -1) {
 
-            return new PlainOldTypeResilver(lh);
+            return new PlainOldTypeResolver(lh);
         } else {
             return null;
         }
@@ -142,7 +142,8 @@ public class TypeUtils {
                     try {
                         Class.forName(prefix + "." + name);
                         return new ClassType(prefix + "." + name);
-                    } catch (Exception e1) {}
+                    } catch (Exception e1) {
+                    }
                 }
             }
         }
@@ -159,11 +160,14 @@ public class TypeUtils {
         for (i = len; i > 0; i--) {
             String className = arrToName(parts, 0, i);
             ct = resolveClass(className, imports);
-            if (ct != null) break;
+            if (ct != null)
+                break;
         }
 
-        if (i == len) return ct;
-        if (ct == null) return null;
+        if (i == len)
+            return ct;
+        if (ct == null)
+            return null;
 
         System.out.println("class: " + ct.toString());
         for (;; i++) {

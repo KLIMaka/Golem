@@ -14,7 +14,7 @@ import golem.symbol.ParseException;
 import golem.symbol.Symbol;
 import golem.symbol.nuds.ClassName;
 import golem.typesystem.Methods;
-import golem.typesystem.PlainOldTypeResilver;
+import golem.typesystem.PlainOldTypeResolver;
 import golem.typesystem.StaticFunctionTypeResolver;
 import golem.typesystem.TypeUtils;
 
@@ -37,12 +37,12 @@ public class Member implements Iled, IRvalue, ILvalue {
         if (left.type.get() instanceof ClassType) {
             member = TypeUtils.resolveMember(clazz, name);
             if (member instanceof Field) {
-                self.type = new PlainOldTypeResilver(((Field) member).getType());
+                self.type = new PlainOldTypeResolver(((Field) member).getType());
                 self.lval = instance;
             }
             if (member instanceof Method) {
                 Methods methods = new Methods(clazz, name);
-                self.type = new StaticFunctionTypeResolver(methods, p.getClassLoader());
+                self.type = new StaticFunctionTypeResolver(methods);
             }
         } else {
             self.token.error("Expected a class type.");

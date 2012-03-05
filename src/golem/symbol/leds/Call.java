@@ -10,7 +10,7 @@ import golem.symbol.Iled;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
 import golem.typesystem.IFunctionTypeResolver;
-import golem.typesystem.PlainOldTypeResilver;
+import golem.typesystem.PlainOldTypeResolver;
 import golem.typesystem.TypeUtils;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class Call implements Iled, IRvalue {
 
         self.first = left;
         self.second = args;
-        self.type = new PlainOldTypeResilver(method.getReturnType());
+        self.type = new PlainOldTypeResolver(method.getReturnType());
         self.third = method;
         self.rval = instance;
         return self;

@@ -9,7 +9,7 @@ import golem.symbol.IRvalue;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
-import golem.typesystem.PlainOldTypeResilver;
+import golem.typesystem.PlainOldTypeResolver;
 import golem.typesystem.TypeUtils;
 
 public class If_ implements Inud, IRvalue {
@@ -37,7 +37,7 @@ public class If_ implements Inud, IRvalue {
             }
         }
 
-        self.type = new PlainOldTypeResilver(type);
+        self.type = new PlainOldTypeResolver(type);
         self.rval = instance;
 
         return self;

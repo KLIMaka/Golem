@@ -8,3 +8,4 @@ import golem.frontend.*;
 def time = System.currentTimeMillis;
 def rand = Math.random;
 System.out.println(rand());
+System.out.println(typeof(rand));
