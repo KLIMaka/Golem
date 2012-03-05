@@ -23,7 +23,7 @@ public class StaticFunctionTypeResolver implements IFunctionTypeResolver {
 
     @Override
     public String getName() {
-        return "function " + m_methods.getClazz().getName() + "." + m_methods.getName();
+        return "static function " + m_methods.getClazz().getName() + "." + m_methods.getName();
     }
 
 }

@@ -236,7 +236,8 @@ public class Parser {
             p.rval = Block.instance;
             return p;
         } catch (Exception e) {
-            m_current.token.error("Java exception");
+            e.printStackTrace();
+            m_current.token.error("Java exception: " + e);
         }
         return null;
     }
