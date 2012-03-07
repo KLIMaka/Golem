@@ -85,6 +85,9 @@ public class Gen {
     public Type resultType() {
         Type t1 = m_code.topType();
         Type t2 = m_code.stack_types[m_code.getSP() - 2];
+        if (t2 == Type.voidType) {
+            t2 = m_code.stack_types[m_code.getSP() - 3];
+        }
         if (t1.compare(t2) >= 0) {
             return t1;
         } else {

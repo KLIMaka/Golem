@@ -27,6 +27,8 @@ public class Def implements Inud, IRvalue {
         Symbol expr = p.expression(0);
 
         p.scope().define(name);
+        p.resolveSymbol();
+
         name.type = expr.type;
         self.type = name.type;
         self.first = name;

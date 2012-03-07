@@ -6,7 +6,11 @@ import gnu.bytecode.ClassType.*;
 import golem.frontend.*;
 
 def time = System.currentTimeMillis;
-def rand = Math.random;
+def rand = {
+    def r = Math.random; 
+    r() / r();
+};
 
-System.out.println(rand());
-System.out.println(time);
+System.out.println(rand);
+System.out.println(rand);
+

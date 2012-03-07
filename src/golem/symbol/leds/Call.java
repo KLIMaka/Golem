@@ -29,7 +29,10 @@ public class Call implements Iled, IRvalue {
         while (!p.current().toString().equals(")")) {
             Symbol arg = p.expression(0);
             args.add(arg);
-            at.add(arg.type.get());
+            Type type = arg.type.get();
+            if (type == null)
+                self.token.error("null type");
+            at.add(type);
 
             if (p.current().toString().equals(")")) {
                 break;

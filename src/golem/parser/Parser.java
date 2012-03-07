@@ -132,7 +132,7 @@ public class Parser {
         advance(null);
     }
 
-    private void resolveSymbol() {
+    public void resolveSymbol() {
 
         switch (m_lex.tok().type) {
 
