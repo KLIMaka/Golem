@@ -45,6 +45,10 @@ public class Symbol {
         lval.invoke(this, g, val);
     }
 
+    public ITypeResolver type() {
+        return type;
+    }
+
     public Symbol first() {
         return (Symbol) first;
     }

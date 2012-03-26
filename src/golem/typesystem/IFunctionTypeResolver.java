@@ -1,11 +1,10 @@
 package golem.typesystem;
 
-import gnu.bytecode.Method;
-import gnu.bytecode.Type;
+import java.util.List;
 
 public interface IFunctionTypeResolver extends ITypeResolver {
 
-    public Method match(Type[] types);
+    public IMethodResolver match(List<ITypeResolver> types);
 
     public String getName();
 }

@@ -10,11 +10,15 @@ import golem.symbol.Iled;
 import golem.symbol.ParseException;
 import golem.symbol.Symbol;
 import golem.typesystem.IFunctionTypeResolver;
-import golem.typesystem.PlainOldTypeResolver;
+import golem.typesystem.IMethodResolver;
+import golem.typesystem.ITypeResolver;
 import golem.typesystem.TypeUtils;
+import golem.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ch.lambdaj.Lambda;
 
 public class Call implements Iled, IRvalue {
 
@@ -23,34 +27,17 @@ public class Call implements Iled, IRvalue {
     @Override
     public Symbol invoke(Symbol self, Parser p, Symbol left) throws ParseException {
 
-        ArrayList<Symbol> args = new ArrayList<Symbol>();
-        ArrayList<Type> at = new ArrayList<Type>();
+        ArrayList<Symbol> args = Utils.list(p, ",", ")");
+        List<ITypeResolver> types = Lambda.extract(args, Lambda.on(Symbol.class).type());
 
-        while (!p.current().toString().equals(")")) {
-            Symbol arg = p.expression(0);
-            args.add(arg);
-            Type type = arg.type.get();
-            if (type == null)
-                self.token.error("null type");
-            at.add(type);
-
-            if (p.current().toString().equals(")")) {
-                break;
-            }
-
-            p.advanceSoft(",");
-        }
-        p.advance(); // ')'
-
-        Type[] arg_types = at.toArray(new Type[at.size()]);
-        Method method = ((IFunctionTypeResolver) left.type).match(arg_types);
+        IMethodResolver method = ((IFunctionTypeResolver) left.type).match(types);
         if (method == null) {
             self.token.error("Cannot match method signature");
         }
 
         self.first = left;
         self.second = args;
-        self.type = new PlainOldTypeResolver(method.getReturnType());
+        self.type = method.type();
         self.third = method;
         self.rval = instance;
         return self;
@@ -61,7 +48,7 @@ public class Call implements Iled, IRvalue {
 
         @SuppressWarnings("unchecked")
         List<Symbol> args = (List<Symbol>) self.second;
-        Method method = (Method) self.third;
+        Method method = ((IMethodResolver) self.third).get();
 
         if (method.getStaticFlag() == false) {
             Symbol method_smb = self.first();
@@ -81,7 +68,7 @@ public class Call implements Iled, IRvalue {
         if (!genResult && !method.getReturnType().isVoid()) {
             g.pop(1);
         } else if (method.getReturnType().isVoid() && genResult) {
-            g.integer(0);
+            g.getLocation().emitPushNull();
         }
     }
 }

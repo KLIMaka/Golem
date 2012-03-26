@@ -34,6 +34,7 @@ public class Member implements Iled, IRvalue, ILvalue {
         gnu.bytecode.Member member = null;
         ClassType clazz = (ClassType) left.type.get();
         String name = field_name.toString();
+
         if (left.type.get() instanceof ClassType) {
             member = TypeUtils.resolveMember(clazz, name);
             if (member instanceof Field) {
@@ -60,25 +61,25 @@ public class Member implements Iled, IRvalue, ILvalue {
     @Override
     public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
 
-        if (genResult) {
-            if (self.third instanceof Field) {
-                Field field = (Field) self.third;
-                if (field.getStaticFlag()) {
-                    g.getLocation().emitGetStatic(field);
-                } else {
-                    self.first().invokeRval(g, true);
-                    g.getLocation().emitGetField(field);
-                }
-            }
+        if (!genResult)
+            return;
 
-            if (self.third instanceof Method) {
-                if (!(self.first().nud instanceof ClassName)) {
-                    // ClassType cl = (ClassType) self.type.get();
-                    // g.getLocation().emitNew(cl);
-                }
+        if (self.third instanceof Field) {
+            Field field = (Field) self.third;
+            if (field.getStaticFlag()) {
+                g.getLocation().emitGetStatic(field);
+            } else {
+                self.first().invokeRval(g, true);
+                g.getLocation().emitGetField(field);
             }
         }
 
+        if (self.third instanceof Method) {
+            if (!(self.first().nud instanceof ClassName)) {
+                // ClassType cl = (ClassType) self.type.get();
+                // g.getLocation().emitNew(cl);
+            }
+        }
     }
 
     @Override

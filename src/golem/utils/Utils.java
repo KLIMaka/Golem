@@ -8,12 +8,15 @@ import gnu.bytecode.CodeAttr;
 import gnu.bytecode.Field;
 import gnu.bytecode.Method;
 import gnu.bytecode.Type;
+import golem.parser.Parser;
+import golem.symbol.Symbol;
 import golem.typesystem.Methods;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,6 +39,25 @@ public class Utils {
         return sb.toString();
     }
 
+    public static ArrayList<Symbol> list(Parser p, String delimer, String terminator) {
+
+        ArrayList<Symbol> arr = new ArrayList<Symbol>();
+
+        while (!p.current().toString().equals(terminator)) {
+            Symbol arg = p.expression(0);
+            arr.add(arg);
+
+            if (p.current().toString().equals(terminator)) {
+                break;
+            }
+
+            p.advanceSoft(delimer);
+        }
+
+        p.advance(); // terminator
+        return arr;
+    }
+
     public static ClassType createFunctionType(Methods methods, ArrayClassLoader cl) throws ClassNotFoundException {
 
         ClassType clazz = new ClassType("_" + methods.getName());
@@ -47,7 +69,8 @@ public class Utils {
 
             String params = "";
             List<Type> types = Arrays.asList(m.getParameterTypes());
-            if (types.size() != 0) params = Lambda.joinFrom(types, "").getSignature();
+            if (types.size() != 0)
+                params = Lambda.joinFrom(types, "").getSignature();
 
             Method mm = clazz.addMethod(methods.getName(), "(" + params + ")" + m.getReturnType().getSignature(),
                     Access.PUBLIC);

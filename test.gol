@@ -5,12 +5,10 @@ import gnu.bytecode.*;
 import gnu.bytecode.ClassType.*;
 import golem.frontend.*;
 
+def r = Math.random;
+def abs = Math.abs; 
 def time = System.currentTimeMillis;
-def rand = {
-    def r = Math.random; 
-    r() / r();
-};
+
+def rand = abs(r() - r());
 
 System.out.println(rand);
-System.out.println(rand);
-
