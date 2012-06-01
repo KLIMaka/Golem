@@ -1,11 +1,11 @@
 package golem.typesystem;
 
+import static ch.lambdaj.Lambda.extract;
+import static ch.lambdaj.Lambda.on;
 import gnu.bytecode.Method;
 import gnu.bytecode.Type;
 
 import java.util.List;
-
-import ch.lambdaj.Lambda;
 
 public class StaticFunctionTypeResolver implements IFunctionTypeResolver {
 
@@ -35,8 +35,7 @@ public class StaticFunctionTypeResolver implements IFunctionTypeResolver {
             public ITypeResolver type() {
                 return new ITypeResolver() {
                     public Type get() {
-                        if (m_method == null)
-                            get_();
+                        if (m_method == null) get_();
                         return m_method.getReturnType();
                     }
                 };
@@ -49,7 +48,7 @@ public class StaticFunctionTypeResolver implements IFunctionTypeResolver {
             @Override
             public Method get() {
                 if (m_method == null) {
-                    List<Type> args = Lambda.extract(types, Lambda.on(ITypeResolver.class).get());
+                    List<Type> args = extract(types, on(ITypeResolver.class).get());
                     m_method = m_methods.match(args.toArray(new Type[args.size()]));
                 }
                 return m_method;

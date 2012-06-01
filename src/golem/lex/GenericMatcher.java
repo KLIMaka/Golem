@@ -1,12 +1,15 @@
 package golem.lex;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GenericMatcher {
 
     private static class Rule {
+
         public Pattern      pattern;
         public int          id;
         public boolean      hidden;
@@ -20,18 +23,27 @@ public class GenericMatcher {
         }
     }
 
+    public static class Context {
+
+        public int          offset;
+        public int          end;
+        public CharSequence cs;
+
+    }
+
     public static interface ILexerAction {
         public void invoke(GenericMatcher lex);
     }
 
-    private int                m_offset;
-    private int                m_end;
     private int                m_id;
     private String             m_value;
-    private boolean            m_eoi      = false;
-    private ArrayList<Matcher> m_matchers = new ArrayList<Matcher>();
-    private ArrayList<Rule>    m_rules    = new ArrayList<Rule>();
+    private boolean            m_eoi         = false;
+    private ArrayList<Matcher> m_matchers    = new ArrayList<Matcher>();
+    private ArrayList<Rule>    m_rules       = new ArrayList<Rule>();
     private ILexerAction       m_defaultAction;
+
+    private Stack<Context>     m_conextStack = new Stack<Context>();
+    private Context            m_current     = null;
 
     public GenericMatcher() {}
 
@@ -43,12 +55,22 @@ public class GenericMatcher {
         m_defaultAction = defaultAction;
     }
 
+    public void addContext(String str) {
+        m_conextStack.push(m_current);
+        m_current = new Context();
+        m_current.cs = str;
+        m_matchers.clear();
+        for (Rule r : m_rules)
+            m_matchers.add(r.pattern.matcher(m_current.cs));
+        m_current.end = m_current.cs.length();
+        m_eoi = false;
+    }
+
     public void setInput(CharSequence cs) {
         m_matchers.clear();
         for (Rule r : m_rules) {
             m_matchers.add(r.pattern.matcher(cs));
         }
-        m_end = cs.length();
         m_eoi = false;
     }
 
@@ -66,7 +88,7 @@ public class GenericMatcher {
 
             for (; type < m_matchers.size(); type++) {
                 m = m_matchers.get(type);
-                m.region(m_offset, m_end);
+                m.region(m_current.offset, m_current.end);
                 boolean success = m.lookingAt();
                 if (success) {
                     break;
@@ -79,7 +101,7 @@ public class GenericMatcher {
             }
 
             m_value = m.group();
-            m_offset = m.end();
+            m_current.offset = m.end();
             Rule rule = m_rules.get(type);
 
             if (rule.action != null) {
@@ -125,30 +147,32 @@ public class GenericMatcher {
         }
     }
 
-    public static void main(String[] args) {
-        GenericMatcher gl = new GenericMatcher();
-        final PositionTracker pt = new PositionTracker();
-        gl.addRule("\n", 4, true, new ILexerAction() {
+    public static String escape(String str) {
+        return str.replace("\\n", "\n").replace("\\r", "\r").replace("\\t", "\t");
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        final GenericMatcher dummy = new GenericMatcher();
+
+        GenericMatcher lexParser = new GenericMatcher();
+        lexParser.addRule("[A-Z_]+", 0, false, new ILexerAction() {
+            int id = 0;
+
             @Override
             public void invoke(GenericMatcher lex) {
-                pt.newLine();
+                String val = lex.getValue();
+                lex.next();
+                lex.next();
+                if (val.equals("EXEC")) {
+
+                } else {
+                    dummy.addRule(escape(lex.getValue()), id++, false, null);
+                }
             }
         });
-
-        gl.addRule("[ \t\r]+", 0, true, null);
-        gl.addRule("[a-z_][a-z0-9_]*", 1, false, null);
-        gl.addRule("/\\*(?:.|[\\n\\r])*?\\*/", 3, true, null);
-        gl.addRule(".", 2, false, null);
-        gl.setDefaultAction(new ILexerAction() {
-            @Override
-            public void invoke(GenericMatcher lex) {
-                pt.advance(lex.getValue().length());
-            }
-        });
-
-        gl.setInput("foo\n bar baz\n bs2af\n /*11*/ gg\n asdas\n s23232");
-        while (gl.next() != -1) {
-            System.out.println(pt.line + ":" + pt.pos + " " + gl.getValue());
-        }
+        lexParser.addRule("[ \t]+", 1, true, null);
+        lexParser.addRule(":", 3, false, null);
+        lexParser.addRule("'.+'", 4, false, null);
     }
 }

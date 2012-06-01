@@ -18,17 +18,12 @@ public class Bin implements Iled, IRvalue {
     public Symbol invoke(Symbol self, Parser p, Symbol left) throws ParseException {
 
         Symbol right = p.expression(self.lbp);
-        try {
 
-            ITypeResolver type = TypeUtils.arithmType(left.type.get(), right.type.get());
-            self.first = left;
-            self.second = right;
-            self.type = type;
-            self.rval = instance;
-
-        } catch (Exception e) {
-            self.token.error("Incompatible arguments.");
-        }
+        ITypeResolver type = TypeUtils.arithmType(left.type.get(), right.type.get());
+        self.first = left;
+        self.second = right;
+        self.type = type;
+        self.rval = instance;
 
         return self;
     }
