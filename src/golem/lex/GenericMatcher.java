@@ -36,7 +36,7 @@ public class GenericMatcher {
     }
 
     private int                m_id;
-    private String             m_value;
+    private Matcher             m_value;
     private boolean            m_eoi         = false;
     private ArrayList<Matcher> m_matchers    = new ArrayList<Matcher>();
     private ArrayList<Rule>    m_rules       = new ArrayList<Rule>();
@@ -100,7 +100,7 @@ public class GenericMatcher {
                 return -1;
             }
 
-            m_value = m.group();
+            m_value = m;
             m_current.offset = m.end();
             Rule rule = m_rules.get(type);
 
@@ -123,7 +123,11 @@ public class GenericMatcher {
     }
 
     public String getValue() {
-        return m_value;
+        return m_value.group();
+    }
+    
+    public String getValue(int off) {
+    	return m_value.group(off);
     }
 
     public int getId() {
@@ -156,23 +160,42 @@ public class GenericMatcher {
         final GenericMatcher dummy = new GenericMatcher();
 
         GenericMatcher lexParser = new GenericMatcher();
-        lexParser.addRule("[A-Z_]+", 0, false, new ILexerAction() {
+        lexParser.addRule("(!?)([A-Z_]+)", 0, false, new ILexerAction() {
             int id = 0;
 
             @Override
             public void invoke(GenericMatcher lex) {
-                String val = lex.getValue();
+            	String hidden = lex.getValue(1);
+                String name = lex.getValue(2);
                 lex.next();
                 lex.next();
-                if (val.equals("EXEC")) {
-
+                String val = lex.getValue(1);
+                if (name.equals("EXEC")) {
+                	int i = 0;
+                	dummy.addContext(val);
+                	while((i = dummy.next()) != -1){
+                		System.out.println(i);
+                	}
                 } else {
-                    dummy.addRule(escape(lex.getValue()), id++, false, null);
+                	if (hidden.equals(""))
+                		dummy.addRule(escape(val), id++, false, null);
+                	else
+                		dummy.addRule(escape(val), id++, true, null);
+                		
                 }
             }
         });
         lexParser.addRule("[ \t]+", 1, true, null);
         lexParser.addRule(":", 3, false, null);
-        lexParser.addRule("'.+'", 4, false, null);
+        lexParser.addRule("'([^']+)'", 4, false, null);
+        
+        lexParser.addContext(
+        		"FOO : '[a-z_]+' " +
+        		"!WS : '[ \t\n]+' " +
+        		"NUM : '[0-9]+' " +
+        		"OP  : '[\\+\\-\\*\\/]' " +
+        		"EXEC: 'foo + 15 -3'");
+        
+        while(lexParser.next() != -1);
     }
 }
