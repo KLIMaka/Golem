@@ -39,6 +39,10 @@ public class Utils {
         return sb.toString();
     }
 
+    public static String getFile(String file) throws IOException {
+        return getFile(new File(file));
+    }
+
     public static ArrayList<Symbol> list(Parser p, String delimer, String terminator) {
 
         ArrayList<Symbol> arr = new ArrayList<Symbol>();
@@ -69,8 +73,7 @@ public class Utils {
 
             String params = "";
             List<Type> types = Arrays.asList(m.getParameterTypes());
-            if (types.size() != 0)
-                params = Lambda.joinFrom(types, "").getSignature();
+            if (types.size() != 0) params = Lambda.joinFrom(types, "").getSignature();
 
             Method mm = clazz.addMethod(methods.getName(), "(" + params + ")" + m.getReturnType().getSignature(),
                     Access.PUBLIC);
