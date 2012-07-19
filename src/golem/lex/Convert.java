@@ -4,13 +4,11 @@ import java.util.regex.Matcher;
 
 public class Convert {
 
+    static int level = 0;
+
     public static Object NUM(Matcher m) {
         // return Integer.valueOf(m.group());
         return "0x" + m.group();
-    }
-
-    public static Object WS(Matcher m) {
-        return " ";
     }
 
     public static Object ID(Matcher m) {
@@ -23,6 +21,21 @@ public class Convert {
             res += first + rest;
         }
         return res;
+    }
+
+    public static Object BR(Matcher m) {
+        if (m.group().equals("{"))
+            level++;
+        else
+            level--;
+        return m.group();
+    }
+
+    public static Object NL(Matcher m) {
+        String sp = "";
+        for (int i = 0; i < level; i++)
+            sp += "  ";
+        return m.group() + sp;
     }
 
 }

@@ -204,25 +204,6 @@ public class GenericMatcher {
 
         GenericMatcher lexParser = new GenericMatcher();
 
-        lexParser.addRule("CALL", 0, "CALL", true, new ILexerAction() {
-
-            @Override
-            public void invoke(GenericMatcher lex) {
-                lex.setHide(false);
-                lex.next();
-                Matcher clazz = lex.next("(([a-zA-Z_][0-9a-zA-Z_]*)\\.)+");
-                String clazzName = clazz.group();
-                clazzName = clazzName.substring(0, clazzName.length() - 1);
-                String method = lex.next("[a-zA-Z_][0-9a-zA-Z_]*").group();
-                try {
-                    Method m = Class.forName(clazzName).getMethod(method, double.class);
-                    System.out.println(m.invoke(null, 12.55));
-                } catch (Exception e) {
-                }
-                lex.setHide(true);
-            }
-        });
-
         lexParser.addRule("(!?)([A-Z_]+)(\\*?)", 1, "ID", false, new ILexerAction() {
             int id = 0;
 
@@ -247,7 +228,7 @@ public class GenericMatcher {
                                     Method me = Convert.class.getMethod(ruleName, Matcher.class);
                                     return me.invoke(null, m);
                                 } catch (Exception e) {
-                                    return null;
+                                    return m.group();
                                 }
                             };
                         };
