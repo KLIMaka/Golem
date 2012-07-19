@@ -3,6 +3,7 @@ package golem.lex;
 import golem.utils.Utils;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -30,6 +31,10 @@ public class GenericMatcher {
         public String toString() {
             return name;
         }
+
+        public Object convert(Matcher m) {
+            return m.group();
+        }
     }
 
     public static class Context {
@@ -56,10 +61,15 @@ public class GenericMatcher {
     private Stack<Context>     m_conextStack = new Stack<Context>();
     private Context            m_current     = null;
 
-    public GenericMatcher() {}
+    public GenericMatcher() {
+    }
 
     public void addRule(String pat, int id, String name, boolean hidden, ILexerAction act) {
         m_rules.add(new Rule(Pattern.compile("^" + pat), id, name, hidden, act));
+    }
+
+    public void addRule(Rule r) {
+        m_rules.add(r);
     }
 
     public void setDefaultAction(ILexerAction defaultAction) {
@@ -90,11 +100,21 @@ public class GenericMatcher {
         Matcher m = patt.matcher(m_current.cs);
         m.region(m_current.offset, m_current.end);
         if (m.lookingAt()) {
+            m_value = m;
+            m_current.offset = m.end();
+            m_rule = null;
+            if (m_defaultAction != null) {
+                m_defaultAction.invoke(this);
+            }
             return m;
         } else {
             return null;
         }
 
+    }
+
+    public Matcher next(String patt) {
+        return next(Pattern.compile(patt));
     }
 
     public int next() {
@@ -154,6 +174,10 @@ public class GenericMatcher {
         return m_value.group(off);
     }
 
+    public Object getObject() {
+        return m_rule.convert(m_value);
+    }
+
     public int getId() {
         return m_id;
     }
@@ -184,33 +208,53 @@ public class GenericMatcher {
 
             @Override
             public void invoke(GenericMatcher lex) {
+                lex.setHide(false);
                 lex.next();
-                String clazz = lex.getValue();
+                Matcher clazz = lex.next("(([a-zA-Z_][0-9a-zA-Z_]*)\\.)+");
+                String clazzName = clazz.group();
+                clazzName = clazzName.substring(0, clazzName.length() - 1);
+                String method = lex.next("[a-zA-Z_][0-9a-zA-Z_]*").group();
+                try {
+                    Method m = Class.forName(clazzName).getMethod(method, double.class);
+                    System.out.println(m.invoke(null, 12.55));
+                } catch (Exception e) {
+                }
+                lex.setHide(true);
             }
         });
 
-        lexParser.addRule("(!?)([A-Z_]+)", 1, "ID", false, new ILexerAction() {
+        lexParser.addRule("(!?)([A-Z_]+)(\\*?)", 1, "ID", false, new ILexerAction() {
             int id = 0;
 
             @Override
-            public void invoke(GenericMatcher lex) {
-                String hidden = lex.getValue(1);
-                String name = lex.getValue(2);
+            public void invoke(final GenericMatcher lex) {
+                boolean isHidden = lex.getValue(1).equals("!");
+                final String ruleName = lex.getValue(2);
+                boolean isActive = lex.getValue(3).equals("*");
                 lex.next();
                 lex.next();
                 String val = lex.getValue(1);
-                if (name.equals("EXEC")) {
+                if (ruleName.equals("EXEC")) {
                     dummy.addContext(val);
                     while (dummy.next() != -1) {
-                        System.out.print(dummy.getValue());
+                        System.out.print(dummy.getObject());
                     }
                 } else {
-                    if (hidden.equals("")) {
-                        dummy.addRule(escape(val), id++, name, false, null);
+                    if (isActive) {
+                        Rule r = new Rule(Pattern.compile("^" + escape(val)), id++, ruleName, isHidden, null) {
+                            public Object convert(Matcher m) {
+                                try {
+                                    Method me = Convert.class.getMethod(ruleName, Matcher.class);
+                                    return me.invoke(null, m);
+                                } catch (Exception e) {
+                                    return null;
+                                }
+                            };
+                        };
+                        dummy.addRule(r);
                     } else {
-                        dummy.addRule(escape(val), id++, name, true, null);
+                        dummy.addRule(escape(val), id++, ruleName, isHidden, null);
                     }
-
                 }
             }
         });
@@ -220,6 +264,7 @@ public class GenericMatcher {
 
         lexParser.addContext(Utils.getFile("b.txt"));
 
-        while (lexParser.next() != -1);
+        while (lexParser.next() != -1)
+            ;
     }
 }
