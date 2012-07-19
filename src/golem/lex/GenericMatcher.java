@@ -61,8 +61,7 @@ public class GenericMatcher {
     private Stack<Context>     m_conextStack = new Stack<Context>();
     private Context            m_current     = null;
 
-    public GenericMatcher() {
-    }
+    public GenericMatcher() {}
 
     public void addRule(String pat, int id, String name, boolean hidden, ILexerAction act) {
         m_rules.add(new Rule(Pattern.compile("^" + pat), id, name, hidden, act));
@@ -219,6 +218,7 @@ public class GenericMatcher {
                     dummy.addContext(val);
                     while (dummy.next() != -1) {
                         System.out.print(dummy.getObject());
+                        // System.out.print("|");
                     }
                 } else {
                     if (isActive) {
@@ -245,7 +245,6 @@ public class GenericMatcher {
 
         lexParser.addContext(Utils.getFile("b.txt"));
 
-        while (lexParser.next() != -1)
-            ;
+        while (lexParser.next() != -1);
     }
 }

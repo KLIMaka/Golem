@@ -4,7 +4,8 @@ import java.util.regex.Matcher;
 
 public class Convert {
 
-    static int level = 0;
+    static int     level = 0;
+    static boolean nled  = true;
 
     public static Object NUM(Matcher m) {
         // return Integer.valueOf(m.group());
@@ -24,18 +25,28 @@ public class Convert {
     }
 
     public static Object BR(Matcher m) {
-        if (m.group().equals("{"))
+        if (m.group().equals("{")) {
             level++;
-        else
+            return m.group();
+        } else {
             level--;
-        return m.group();
+            return m.group();
+        }
+    }
+
+    public static Object RBR(Matcher m) {
+        String sp = "\n";
+        for (int i = 0; i < level - 1; i++)
+            sp += "  ";
+        level--;
+        return sp + "}";
     }
 
     public static Object NL(Matcher m) {
         String sp = "";
         for (int i = 0; i < level; i++)
             sp += "  ";
-        return m.group() + sp;
+        return "\n" + sp;
     }
 
 }

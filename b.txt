@@ -1,13 +1,14 @@
 ID* : '[a-zA-Z_][a-zA-Z0-9_]*'
 WS* : '[\t ]+'
+RBR*: '\r?\n[ \t]*\}'
 NL* : '\r?\n *'
-BR* : '[\{\}]'
+BR* : '\{|\}'
 SUP : '0xffff'
 HEX : '0x[0-9a-fA-F]+'
 NUM*: '[0-9]+'
 STR : '"[^"]*"'
 !COM: '//[^\n]*'
-OP  : '[\+\-\*\/\(\);=]'
+OP  : '[\+\-\*\/\(\);=:]'
 DOP : '(<<)|(>>)|(::)'
 OTH : '.+'
 
@@ -18,7 +19,14 @@ using namespace std;
 int main() {
 int a = 11;
 for( a : b ) {
-sadas
+sadas { 
+foo
+bar
+}
+koo {
+sdfsd
+sdf
+}
 }
 my_first_id
 a//string b = "Asda sd as";
