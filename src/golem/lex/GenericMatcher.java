@@ -61,7 +61,8 @@ public class GenericMatcher {
     private Stack<Context>     m_conextStack = new Stack<Context>();
     private Context            m_current     = null;
 
-    public GenericMatcher() {}
+    public GenericMatcher() {
+    }
 
     public void addRule(String pat, int id, String name, boolean hidden, ILexerAction act) {
         m_rules.add(new Rule(Pattern.compile("^" + pat), id, name, hidden, act));
