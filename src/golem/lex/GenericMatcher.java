@@ -5,6 +5,7 @@ import golem.utils.Utils;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,6 +19,7 @@ public class GenericMatcher {
         public String       name;
         public boolean      hidden;
         public ILexerAction action;
+        public Matcher      matcher;
 
         public Rule(Pattern pat, int i, String n, boolean h, ILexerAction act) {
             pattern = pat;
@@ -35,40 +37,47 @@ public class GenericMatcher {
         public Object convert(Matcher m) {
             return m.group();
         }
+
+        public void setSource(CharSequence cs) {
+            matcher = pattern.matcher(cs);
+        }
     }
 
     public static class Context {
 
-        public int          offset;
-        public int          end;
-        public CharSequence cs;
-
+        public int    end;
+        public String name;
     }
 
     public static interface ILexerAction {
         public void invoke(GenericMatcher lex);
     }
 
-    private int                m_id;
-    private Rule               m_rule;
-    private Matcher            m_value;
-    private boolean            m_hide        = true;
-    private boolean            m_eoi         = false;
-    private ArrayList<Matcher> m_matchers    = new ArrayList<Matcher>();
-    private ArrayList<Rule>    m_rules       = new ArrayList<Rule>();
-    private ILexerAction       m_defaultAction;
+    private int             m_id;
+    private Rule            m_rule;
+    private Matcher         m_value;
+    private boolean         m_hide        = true;
+    private boolean         m_eoi         = false;
+    private ArrayList<Rule> m_rules       = new ArrayList<Rule>();
+    private ILexerAction    m_defaultAction;
 
-    private Stack<Context>     m_conextStack = new Stack<Context>();
-    private Context            m_current     = null;
+    private StringBuilder   m_source      = new StringBuilder();
+    private int             m_offset      = 0;
+    private int             m_end         = 0;
+    private Stack<Context>  m_conextStack = new Stack<Context>();
+    private Context         m_current     = null;
 
-    public GenericMatcher() {
-    }
+    public GenericMatcher() {}
 
     public void addRule(String pat, int id, String name, boolean hidden, ILexerAction act) {
-        m_rules.add(new Rule(Pattern.compile("^" + pat), id, name, hidden, act));
+        Rule r = new Rule(Pattern.compile("^" + pat), id, name, hidden, act);
+        r.setSource(m_source);
+        m_rules.add(r);
+
     }
 
     public void addRule(Rule r) {
+        r.setSource(m_source);
         m_rules.add(r);
     }
 
@@ -76,32 +85,21 @@ public class GenericMatcher {
         m_defaultAction = defaultAction;
     }
 
-    public void addContext(String str) {
+    public void addContext(CharSequence cs, String name) {
         m_conextStack.push(m_current);
         m_current = new Context();
-        m_current.cs = str;
-        m_matchers.clear();
-        for (Rule r : m_rules)
-            m_matchers.add(r.pattern.matcher(m_current.cs));
-        m_current.end = m_current.cs.length();
-        m_eoi = false;
-    }
-
-    protected void setInput(CharSequence cs) {
-        m_matchers.clear();
-        for (Rule r : m_rules) {
-            m_matchers.add(r.pattern.matcher(cs));
-        }
-        m_eoi = false;
+        m_source.insert(m_offset, cs);
+        m_current.end = m_offset + cs.length();
+        m_end += cs.length();
     }
 
     public Matcher next(Pattern patt) {
 
-        Matcher m = patt.matcher(m_current.cs);
-        m.region(m_current.offset, m_current.end);
+        Matcher m = patt.matcher(m_source);
+        m.region(m_offset, m_end);
         if (m.lookingAt()) {
             m_value = m;
-            m_current.offset = m.end();
+            m_offset = m.end();
             m_rule = null;
             if (m_defaultAction != null) {
                 m_defaultAction.invoke(this);
@@ -117,35 +115,44 @@ public class GenericMatcher {
         return next(Pattern.compile(patt));
     }
 
+    protected void updateContext() {
+        if (m_offset > m_current.end) {
+            m_current = m_conextStack.pop();
+            updateContext();
+        }
+    }
+
+    protected Rule match(Iterator<Rule> rules) {
+        while (rules.hasNext()) {
+            Rule r = rules.next();
+            Matcher m = r.matcher;
+            m.region(m_offset, m_end);
+            if (m.lookingAt()) {
+                return r;
+            }
+        }
+        return null;
+    }
+
     public int next() {
 
-        int type;
+        Rule rule = null;
         for (;;) {
 
             if (m_eoi) {
                 return -1;
             }
 
-            type = 0;
-            Matcher m = null;
+            rule = match(m_rules.iterator());
 
-            for (; type < m_matchers.size(); type++) {
-                m = m_matchers.get(type);
-                m.region(m_current.offset, m_current.end);
-                boolean success = m.lookingAt();
-                if (success) {
-                    break;
-                }
-            }
-
-            if (type == m_matchers.size()) {
+            if (rule == null) {
                 m_eoi = true;
                 return -1;
             }
 
-            m_value = m;
-            m_current.offset = m.end();
-            Rule rule = m_rules.get(type);
+            m_value = rule.matcher;
+            m_offset = rule.matcher.end();
+            updateContext();
             m_rule = rule;
 
             if (rule.action != null) {
@@ -163,7 +170,7 @@ public class GenericMatcher {
             break;
         }
 
-        return m_id = m_rules.get(type).id;
+        return m_id = rule.id;
     }
 
     public String getValue() {
@@ -216,7 +223,7 @@ public class GenericMatcher {
                 lex.next();
                 String val = lex.getValue(1);
                 if (ruleName.equals("EXEC")) {
-                    dummy.addContext(val);
+                    dummy.addContext(val, "<EXEC>");
                     while (dummy.next() != -1) {
                         System.out.print(dummy.getObject());
                         // System.out.print("|");
@@ -244,7 +251,7 @@ public class GenericMatcher {
         lexParser.addRule(":", 3, ":", false, null);
         lexParser.addRule("'([^']+)'", 4, "string", false, null);
 
-        lexParser.addContext(Utils.getFile("b.txt"));
+        lexParser.addContext(Utils.getFile("b.txt"), "b.txt");
 
         while (lexParser.next() != -1);
     }
