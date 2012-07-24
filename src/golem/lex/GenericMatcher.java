@@ -17,19 +17,17 @@ public class GenericMatcher {
 
     public static class Rule {
 
-        public Pattern      pattern;
-        public int          id;
-        public String       name;
-        public boolean      hidden;
-        public ILexerAction action;
-        public Matcher      matcher;
+        public Pattern pattern;
+        public int     id;
+        public String  name;
+        public boolean hidden;
+        public Matcher matcher;
 
-        public Rule(Pattern pat, int i, String n, boolean h, ILexerAction act) {
-            pattern = pat;
+        public Rule(String patt, int i, String n, boolean h) {
+            pattern = Pattern.compile("^" + patt);
             id = i;
             name = n;
             hidden = h;
-            action = act;
         }
 
         @Override
@@ -41,22 +39,17 @@ public class GenericMatcher {
             return m.group();
         }
 
+        public void action(GenericMatcher lex) {}
+
         public void setSource(CharSequence cs) {
             matcher = pattern.matcher(cs);
         }
 
-        public static Predicate<Rule> isHidden  = new Predicate<Rule>() {
-                                                    public boolean apply(Rule r) {
-                                                        return r.hidden;
-                                                    }
-                                                };
-
-        public static Predicate<Rule> hasAction = new Predicate<Rule>() {
-                                                    public boolean apply(Rule r) {
-                                                        return r.action != null;
-                                                    };
-                                                };
-
+        public static Predicate<Rule> isHidden = new Predicate<Rule>() {
+                                                   public boolean apply(Rule r) {
+                                                       return r.hidden;
+                                                   }
+                                               };
     }
 
     public static class Context {
@@ -75,7 +68,6 @@ public class GenericMatcher {
     private boolean         m_hide        = true;
     private boolean         m_eoi         = false;
     private ArrayList<Rule> m_rules       = new ArrayList<Rule>();
-    private ILexerAction    m_defaultAction;
 
     private StringBuilder   m_source      = new StringBuilder();
     private int             m_offset      = 0;
@@ -83,11 +75,10 @@ public class GenericMatcher {
     private Stack<Context>  m_conextStack = new Stack<Context>();
     private Context         m_current     = null;
 
-    public GenericMatcher() {
-    }
+    public GenericMatcher() {}
 
-    public void addRule(String pat, int id, String name, boolean hidden, ILexerAction act) {
-        Rule r = new Rule(Pattern.compile("^" + pat), id, name, hidden, act);
+    public void addRule(String pat, int id, String name, boolean hidden) {
+        Rule r = new Rule(pat, id, name, hidden);
         r.setSource(m_source);
         m_rules.add(r);
     }
@@ -95,10 +86,6 @@ public class GenericMatcher {
     public void addRule(Rule r) {
         r.setSource(m_source);
         m_rules.add(r);
-    }
-
-    public void setDefaultAction(ILexerAction defaultAction) {
-        m_defaultAction = defaultAction;
     }
 
     public void addContext(CharSequence cs, String name) {
@@ -109,26 +96,12 @@ public class GenericMatcher {
         m_end += cs.length();
     }
 
-    public Matcher next(Pattern patt) {
+    public Matcher next(String patt, boolean skipHidden) {
 
-        Matcher m = patt.matcher(m_source);
-        m.region(m_offset, m_end);
-        if (m.lookingAt()) {
-            m_value = m;
-            m_offset = m.end();
-            m_rule = null;
-            if (m_defaultAction != null) {
-                m_defaultAction.invoke(this);
-            }
-            return m;
-        } else {
-            return null;
-        }
-
-    }
-
-    public Matcher next(String patt) {
-        return next(Pattern.compile(patt));
+        if (skipHidden) skipHidden();
+        Rule r = new Rule(patt, 0, null, false);
+        r.setSource(m_source);
+        return exec(Iterators.singletonIterator(r)).matcher;
     }
 
     protected void updateContext() {
@@ -169,23 +142,19 @@ public class GenericMatcher {
             rule = null;
         }
 
-        if (rule == null)
-            return null;
+        if (rule == null) return null;
 
         m_value = rule.matcher;
         m_rule = rule;
         setOffset(rule.matcher.end());
 
-        if (rule.action != null) {
-            rule.action.invoke(this);
-        }
-
-        if (m_defaultAction != null) {
-            m_defaultAction.invoke(this);
-        }
+        rule.action(this);
+        defaultAction();
 
         return rule;
     }
+
+    protected void defaultAction() {}
 
     public int skipHidden() {
         int skipped = 0;
@@ -197,11 +166,9 @@ public class GenericMatcher {
 
     public int next() {
 
-        if (m_eoi)
-            return -1;
+        if (m_eoi) return -1;
 
-        if (m_hide)
-            skipHidden();
+        if (m_hide) skipHidden();
 
         Rule rule = exec(m_rules.iterator());
         if (rule == null) {
@@ -250,11 +217,11 @@ public class GenericMatcher {
 
         GenericMatcher lexParser = new GenericMatcher();
 
-        lexParser.addRule("(!?)([A-Z_]+)(\\*?)", 1, "ID", false, new ILexerAction() {
+        lexParser.addRule(new Rule("(!?)([A-Z_]+)(\\*?)", 1, "ID", false) {
             int id = 0;
 
             @Override
-            public void invoke(final GenericMatcher lex) {
+            public void action(final GenericMatcher lex) {
                 boolean isHidden = lex.getValue(1).equals("!");
                 final String ruleName = lex.getValue(2);
                 boolean isActive = lex.getValue(3).equals("*");
@@ -269,7 +236,7 @@ public class GenericMatcher {
                     }
                 } else {
                     if (isActive) {
-                        Rule r = new Rule(Pattern.compile("^" + escape(val)), id++, ruleName, isHidden, null) {
+                        Rule r = new Rule(escape(val), id++, ruleName, isHidden) {
                             public Object convert(Matcher m) {
                                 try {
                                     Method me = Convert.class.getMethod(ruleName, Matcher.class);
@@ -281,14 +248,14 @@ public class GenericMatcher {
                         };
                         dummy.addRule(r);
                     } else {
-                        dummy.addRule(escape(val), id++, ruleName, isHidden, null);
+                        dummy.addRule(escape(val), id++, ruleName, isHidden);
                     }
                 }
             }
         });
-        lexParser.addRule("[ \t\n\r]+", 2, "WS", true, null);
-        lexParser.addRule(":", 3, ":", false, null);
-        lexParser.addRule("'([^']+)'", 4, "string", false, null);
+        lexParser.addRule("[ \t\n\r]+", 2, "WS", true);
+        lexParser.addRule(":", 3, ":", false);
+        lexParser.addRule("'([^']+)'", 4, "string", false);
 
         lexParser.addContext(Utils.getFile("b.txt"), "b.txt");
 

@@ -27,32 +27,30 @@ public class GolemLexer extends GenericMatcher {
         m_name = "null";
         m_input = text;
 
-        setDefaultAction(new ILexerAction() {
+        addRule(new Rule("\n", NL, "NL", true) {
             @Override
-            public void invoke(GenericMatcher lex) {
-                m_pos += m_next;
-                m_next = lex.getValue().length();
-            }
-        });
-
-        addRule("\n", NL, "NL", true, new ILexerAction() {
-            @Override
-            public void invoke(GenericMatcher lex) {
+            public void action(GenericMatcher lex) {
                 m_line++;
                 m_pos = 0;
             }
         });
-        addRule("[ \t\r]+", WS, "WS", true, null);
-        addRule("\\/\\/[^\n]*", CPP_COM, "CPP_COM", true, null);
-        addRule("[a-zA-Z_][a-zA-Z0-9_]*", ID, "ID", false, null);
-        addRule("[0-9]+(\\.[0-9]*)([eE][\\+\\-]?[0-9]+)?", FLAOT, "FLOAT", false, null);
-        addRule("[0-9]+", INT, "INT", false, null);
-        addRule("^\\\"[^\\\"]*\\\"", STRING, "STRING", false, null);
-        addRule("'.'", CHAR, "CHAR", false, null);
-        addRule("[=!<>&\\|][=&\\|]+", COOP, "COOP", false, null);
-        addRule(".", OP, "OP", false, null);
+        addRule("[ \t\r]+", WS, "WS", true);
+        addRule("\\/\\/[^\n]*", CPP_COM, "CPP_COM", true);
+        addRule("[a-zA-Z_][a-zA-Z0-9_]*", ID, "ID", false);
+        addRule("[0-9]+(\\.[0-9]*)([eE][\\+\\-]?[0-9]+)?", FLAOT, "FLOAT", false);
+        addRule("[0-9]+", INT, "INT", false);
+        addRule("^\\\"[^\\\"]*\\\"", STRING, "STRING", false);
+        addRule("'.'", CHAR, "CHAR", false);
+        addRule("[=!<>&\\|][=&\\|]+", COOP, "COOP", false);
+        addRule(".", OP, "OP", false);
 
         addContext(m_input, name);
+    }
+
+    @Override
+    protected void defaultAction() {
+        m_pos += m_next;
+        m_next = getValue().length();
     }
 
     @Override
