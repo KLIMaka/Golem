@@ -10,9 +10,12 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterators;
+
 public class GenericMatcher {
 
-    private static class Rule {
+    public static class Rule {
 
         public Pattern      pattern;
         public int          id;
@@ -41,6 +44,19 @@ public class GenericMatcher {
         public void setSource(CharSequence cs) {
             matcher = pattern.matcher(cs);
         }
+
+        public static Predicate<Rule> isHidden  = new Predicate<Rule>() {
+                                                    public boolean apply(Rule r) {
+                                                        return r.hidden;
+                                                    }
+                                                };
+
+        public static Predicate<Rule> hasAction = new Predicate<Rule>() {
+                                                    public boolean apply(Rule r) {
+                                                        return r.action != null;
+                                                    };
+                                                };
+
     }
 
     public static class Context {
@@ -67,13 +83,13 @@ public class GenericMatcher {
     private Stack<Context>  m_conextStack = new Stack<Context>();
     private Context         m_current     = null;
 
-    public GenericMatcher() {}
+    public GenericMatcher() {
+    }
 
     public void addRule(String pat, int id, String name, boolean hidden, ILexerAction act) {
         Rule r = new Rule(Pattern.compile("^" + pat), id, name, hidden, act);
         r.setSource(m_source);
         m_rules.add(r);
-
     }
 
     public void addRule(Rule r) {
@@ -122,6 +138,11 @@ public class GenericMatcher {
         }
     }
 
+    protected void setOffset(int off) {
+        m_offset = off;
+        updateContext();
+    }
+
     protected Rule match(Iterator<Rule> rules) {
         while (rules.hasNext()) {
             Rule r = rules.next();
@@ -134,40 +155,58 @@ public class GenericMatcher {
         return null;
     }
 
-    public int next() {
+    protected Rule exec(Iterator<Rule> rules) {
 
         Rule rule = null;
-        for (;;) {
-
-            if (m_eoi) {
-                return -1;
+        while (rules.hasNext()) {
+            rule = rules.next();
+            Matcher m = rule.matcher;
+            m.region(m_offset, m_end);
+            boolean succ = m.lookingAt();
+            if (succ) {
+                break;
             }
+            rule = null;
+        }
 
-            rule = match(m_rules.iterator());
+        if (rule == null)
+            return null;
 
-            if (rule == null) {
-                m_eoi = true;
-                return -1;
-            }
+        m_value = rule.matcher;
+        m_rule = rule;
+        setOffset(rule.matcher.end());
 
-            m_value = rule.matcher;
-            m_offset = rule.matcher.end();
-            updateContext();
-            m_rule = rule;
+        if (rule.action != null) {
+            rule.action.invoke(this);
+        }
 
-            if (rule.action != null) {
-                rule.action.invoke(this);
-            }
+        if (m_defaultAction != null) {
+            m_defaultAction.invoke(this);
+        }
 
-            if (m_defaultAction != null) {
-                m_defaultAction.invoke(this);
-            }
+        return rule;
+    }
 
-            if (rule.hidden && m_hide) {
-                continue;
-            }
+    public int skipHidden() {
+        int skipped = 0;
+        while (exec(Iterators.filter(m_rules.iterator(), Rule.isHidden)) != null) {
+            skipped++;
+        }
+        return skipped;
+    }
 
-            break;
+    public int next() {
+
+        if (m_eoi)
+            return -1;
+
+        if (m_hide)
+            skipHidden();
+
+        Rule rule = exec(m_rules.iterator());
+        if (rule == null) {
+            m_eoi = true;
+            return -1;
         }
 
         return m_id = rule.id;
