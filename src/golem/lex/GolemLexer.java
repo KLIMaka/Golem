@@ -34,15 +34,16 @@ public class GolemLexer extends GenericMatcher {
                 m_pos = 0;
             }
         });
-        addRule("[ \t\r]+", WS, "WS", true);
-        addRule("\\/\\/[^\n]*", CPP_COM, "CPP_COM", true);
-        addRule("[a-zA-Z_][a-zA-Z0-9_]*", ID, "ID", false);
-        addRule("[0-9]+(\\.[0-9]*)([eE][\\+\\-]?[0-9]+)?", FLAOT, "FLOAT", false);
-        addRule("[0-9]+", INT, "INT", false);
-        addRule("^\\\"[^\\\"]*\\\"", STRING, "STRING", false);
-        addRule("'.'", CHAR, "CHAR", false);
-        addRule("[=!<>&\\|][=&\\|]+", COOP, "COOP", false);
-        addRule(".", OP, "OP", false);
+        // addRule("[ \t\r]+", WS, "WS", true);
+        // addRule("\\/\\/[^\n]*", CPP_COM, "CPP_COM", true);
+        // addRule("[a-zA-Z_][a-zA-Z0-9_]*", ID, "ID", false);
+        // addRule("[0-9]+(\\.[0-9]*)([eE][\\+\\-]?[0-9]+)?", FLAOT, "FLOAT",
+        // false);
+        // addRule("[0-9]+", INT, "INT", false);
+        // addRule("^\\\"[^\\\"]*\\\"", STRING, "STRING", false);
+        // addRule("'.'", CHAR, "CHAR", false);
+        // addRule("[=!<>&\\|][=&\\|]+", COOP, "COOP", false);
+        // addRule(".", OP, "OP", false);
 
         addContext(m_input, name);
     }

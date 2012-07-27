@@ -117,7 +117,7 @@ public class Parser {
         resolveSymbol();
     }
 
-    public void advance(String expected) throws ParseException {
+    public void advance(String expected) {
 
         if (expected != null && !expected.equals(m_lex.tok().val)) {
             m_lex.tok().error("Expecting '" + expected + "'");

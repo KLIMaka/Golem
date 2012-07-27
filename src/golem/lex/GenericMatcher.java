@@ -5,7 +5,9 @@ import golem.utils.Utils;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,12 +20,14 @@ public class GenericMatcher {
     public static class Rule {
 
         public Pattern pattern;
+        public String  patt;
         public int     id;
         public String  name;
         public boolean hidden;
         public Matcher matcher;
 
         public Rule(String patt, int i, String n, boolean h) {
+            this.patt = patt;
             pattern = Pattern.compile("^" + patt);
             id = i;
             name = n;
@@ -39,7 +43,8 @@ public class GenericMatcher {
             return m.group();
         }
 
-        public void action(GenericMatcher lex) {}
+        public void action(GenericMatcher lex) {
+        }
 
         public void setSource(CharSequence cs) {
             matcher = pattern.matcher(cs);
@@ -62,30 +67,79 @@ public class GenericMatcher {
         public void invoke(GenericMatcher lex);
     }
 
-    private int             m_id;
-    private Rule            m_rule;
-    private Matcher         m_value;
-    private boolean         m_hide        = true;
-    private boolean         m_eoi         = false;
-    private ArrayList<Rule> m_rules       = new ArrayList<Rule>();
+    private int               m_id;
+    private Rule              m_rule;
+    private Matcher           m_value;
+    private boolean           m_hide        = true;
+    private boolean           m_eoi         = false;
+    private ArrayList<Rule>   m_rules       = new ArrayList<>();
 
-    private StringBuilder   m_source      = new StringBuilder();
-    private int             m_offset      = 0;
-    private int             m_end         = 0;
-    private Stack<Context>  m_conextStack = new Stack<Context>();
-    private Context         m_current     = null;
+    private Map<String, Rule> m_rulesByPatt = new HashMap<>();
+    private Map<String, Rule> m_rulesByName = new HashMap<>();
 
-    public GenericMatcher() {}
+    private StringBuilder     m_source      = new StringBuilder();
+    private int               m_offset      = 0;
+    private int               m_end         = 0;
+    private Stack<Context>    m_conextStack = new Stack<>();
+    private Context           m_current     = null;
 
-    public void addRule(String pat, int id, String name, boolean hidden) {
-        Rule r = new Rule(pat, id, name, hidden);
+    public GenericMatcher() {
+    }
+
+    public Rule addRule(String patt, String name, boolean hidden) {
+
+        Rule r = new Rule(patt, 0, name, hidden);
         r.setSource(m_source);
-        m_rules.add(r);
+
+        Rule rule = m_rulesByName.get(name);
+        if (rule == null) {
+            r.id = m_rules.size();
+            m_rules.add(r);
+        } else {
+            int idx = m_rules.indexOf(rule);
+            r.id = idx;
+            m_rules.set(idx, r);
+        }
+        m_rulesByName.put(name, r);
+        m_rulesByPatt.put(patt, r);
+
+        return r;
+    }
+
+    public Rule addRule(String patt, boolean hidden) {
+
+        Rule r = new Rule(patt, 0, patt, hidden);
+        r.setSource(m_source);
+
+        Rule rule = m_rulesByPatt.get(patt);
+        if (rule == null) {
+            r.id = m_rules.size();
+            m_rules.add(r);
+        } else {
+            int idx = m_rules.indexOf(rule);
+            r.id = idx;
+            m_rules.set(idx, r);
+        }
+        m_rulesByName.put(patt, r);
+        m_rulesByPatt.put(patt, r);
+
+        return r;
     }
 
     public void addRule(Rule r) {
         r.setSource(m_source);
-        m_rules.add(r);
+
+        Rule rule = m_rulesByName.get(r.name);
+        if (rule == null) {
+            r.id = m_rules.size();
+            m_rules.add(r);
+        } else {
+            int idx = m_rules.indexOf(rule);
+            r.id = idx;
+            m_rules.set(idx, r);
+        }
+        m_rulesByName.put(r.name, r);
+        m_rulesByPatt.put(r.patt, r);
     }
 
     public void addContext(CharSequence cs, String name) {
@@ -98,7 +152,8 @@ public class GenericMatcher {
 
     public Matcher next(String patt, boolean skipHidden) {
 
-        if (skipHidden) skipHidden();
+        if (skipHidden)
+            skipHidden();
         Rule r = new Rule(patt, 0, null, false);
         r.setSource(m_source);
         return exec(Iterators.singletonIterator(r)).matcher;
@@ -130,31 +185,36 @@ public class GenericMatcher {
 
     protected Rule exec(Iterator<Rule> rules) {
 
+        int len = 0;
+        Rule matched = null;
         Rule rule = null;
         while (rules.hasNext()) {
             rule = rules.next();
             Matcher m = rule.matcher;
             m.region(m_offset, m_end);
+            String s = m_source.substring(m_offset);
             boolean succ = m.lookingAt();
-            if (succ) {
-                break;
+            if (succ && len <= m.group().length()) {
+                matched = rule;
+                len = m.group().length();
             }
-            rule = null;
         }
 
-        if (rule == null) return null;
+        if (matched == null)
+            return null;
 
-        m_value = rule.matcher;
-        m_rule = rule;
-        setOffset(rule.matcher.end());
+        m_value = matched.matcher;
+        m_rule = matched;
+        setOffset(matched.matcher.end());
 
-        rule.action(this);
+        matched.action(this);
         defaultAction();
 
-        return rule;
+        return matched;
     }
 
-    protected void defaultAction() {}
+    protected void defaultAction() {
+    }
 
     public int skipHidden() {
         int skipped = 0;
@@ -166,9 +226,11 @@ public class GenericMatcher {
 
     public int next() {
 
-        if (m_eoi) return -1;
+        if (m_eoi)
+            return -1;
 
-        if (m_hide) skipHidden();
+        if (m_hide)
+            skipHidden();
 
         Rule rule = exec(m_rules.iterator());
         if (rule == null) {
@@ -177,6 +239,25 @@ public class GenericMatcher {
         }
 
         return m_id = rule.id;
+    }
+
+    public Matcher nextByPatt(String patt) {
+        skipHidden();
+        Rule rule = m_rulesByPatt.get(patt);
+        if (rule == null) {
+            rule = addRule(patt, false);
+        }
+        rule = exec(Iterators.singletonIterator(rule));
+
+        return rule == null ? null : rule.matcher;
+    }
+
+    public Matcher nextByName(String name) {
+        skipHidden();
+        Rule rule = m_rulesByName.get(name);
+        rule = exec(Iterators.singletonIterator(rule));
+
+        return rule == null ? null : rule.matcher;
     }
 
     public String getValue() {
@@ -217,7 +298,7 @@ public class GenericMatcher {
 
         GenericMatcher lexParser = new GenericMatcher();
 
-        lexParser.addRule(new Rule("(!?)([A-Z_]+)(\\*?)", 1, "ID", false) {
+        lexParser.addRule(new Rule("(!?)([A-Z_0-9]+)(\\*?)", 1, "ID", false) {
             int id = 0;
 
             @Override
@@ -228,11 +309,34 @@ public class GenericMatcher {
                 lex.next();
                 lex.next();
                 String val = lex.getValue(1);
-                if (ruleName.equals("EXEC")) {
+                if (ruleName.equals("MATCH")) {
+                    String s = lex.nextByName("string").group(1);
+                    dummy.addContext(s, "foo");
+                    String[] parts = val.split(" ");
+                    for (String part : parts) {
+                        if (part.startsWith("{")) {
+                            Matcher m = dummy.nextByPatt(part.substring(1, part.length() - 1));
+                            if (m == null) {
+                                System.out.println("fail");
+                                break;
+                            }
+                            System.out.println(m.group());
+                        } else {
+                            Matcher m = dummy.nextByName(part);
+                            if (m == null) {
+                                System.out.println("fail");
+                                break;
+                            }
+                            System.out.println(m.group());
+                        }
+                    }
+
+                } else if (ruleName.equals("EXEC")) {
                     dummy.addContext(val, "<EXEC>");
                     while (dummy.next() != -1) {
-                        System.out.print(dummy.getObject());
+                        // System.out.print(dummy.getObject());
                         // System.out.print("|");
+                        System.out.println(dummy.m_id);
                     }
                 } else {
                     if (isActive) {
@@ -248,16 +352,17 @@ public class GenericMatcher {
                         };
                         dummy.addRule(r);
                     } else {
-                        dummy.addRule(escape(val), id++, ruleName, isHidden);
+                        dummy.addRule(escape(val), ruleName, isHidden);
                     }
                 }
             }
         });
-        lexParser.addRule("[ \t\n\r]+", 2, "WS", true);
-        lexParser.addRule(":", 3, ":", false);
-        lexParser.addRule("'([^']+)'", 4, "string", false);
+        lexParser.addRule("[ \t\n\r]+", "WS", true);
+        lexParser.addRule(":", ":", false);
+        lexParser.addRule("'([^']+)'", "string", false);
+        lexParser.addRule("\\{(.+)\\}", "PATT", false);
 
-        lexParser.addContext(Utils.getFile("b.txt"), "b.txt");
+        lexParser.addContext(Utils.getFile("c.txt"), "c.txt");
 
         while (lexParser.next() != -1);
     }

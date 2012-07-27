@@ -100,7 +100,6 @@ public class Gen {
         PrimType oper_type = (PrimType) res_Type.promote();
         m_code.emitAdd(oper_type);
         m_code.emitConvert(oper_type, res_Type);
-
     }
 
     public void sub() {
