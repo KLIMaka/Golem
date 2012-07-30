@@ -5,3 +5,68 @@ ID2 : '[a-zA-Z]{3}'
 CNAME: '[a-zA-Z_]+(\.[a-zA-Z_]+)*'
 
 MATCH : '{#include} CNAME {\(} ID {\)}' '#include java.lang.Syslem.out(foobar)'
+
+assign : '=';
+assign : rinfix(10) {
+	name = __left;
+	val  = expr();
+}
+
+NUM : '[0-9]+';
+STR : '"[^"]";
+literal : NUM | STR;
+literal : self;
+
+bin(prio) : infix(prio) {
+	lh = __left;
+	rh = expr();
+}
+
+unr(prio) : prefix(prio) {
+	val = exepr();
+}
+
+add : '\+';
+add : bin(50);
+sub : '\-';
+sub : bin(50);
+mul : '\*';
+mul : bin(60);
+div : '\/';
+div : bin(60);
+
+minus : '\-';
+minus : unr(80);
+
+print : 'print';
+print : unr(10);
+
+matcher {
+
+	token   : ID | VAL; 
+	'|' : infix(50);
+	'(' : block(')');
+	'?' : postfix();
+	'+' : postfix();
+	'*' : postfix();
+	'=' : infix(80);
+	'+=': infix(80);
+}
+
+define : ':'
+define : infix(50) {
+	name = __left;
+	val  = matcher;
+}
+
+parent : ID (args+=literal (',' args+=literal)*)? ;
+body   : block;
+
+define : ':';
+define : infix(10) {
+	name = __left;
+	parent = parent?;
+	body = body?; 
+}
+
+ 
