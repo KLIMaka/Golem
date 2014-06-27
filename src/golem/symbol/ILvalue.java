@@ -5,6 +5,6 @@ import golem.generator.GenException;
 
 public interface ILvalue {
 
-    public void invoke(Symbol self, Gen gen, Symbol val) throws GenException;
+	public void invoke(Symbol self, Gen gen, Symbol val) throws GenException;
 
 }

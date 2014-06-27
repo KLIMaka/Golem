@@ -4,8 +4,8 @@ import gnu.bytecode.Method;
 
 public interface IMethodResolver {
 
-    ITypeResolver type();
+	ITypeResolver type();
 
-    Method get();
+	Method get();
 
 }

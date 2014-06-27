@@ -4,10 +4,10 @@ import gnu.bytecode.ClassType;
 
 public class ClassName extends QualifiedName {
 
-    public ClassType clazz;
+	public ClassType clazz;
 
-    public ClassName(ClassType clazz) {
-        this.clazz = clazz;
-    }
+	public ClassName(ClassType clazz) {
+		this.clazz = clazz;
+	}
 
 }

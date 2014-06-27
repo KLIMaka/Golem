@@ -7,13 +7,13 @@ import golem.symbol.Symbol;
 
 public class Null_led implements Iled {
 
-    static public Null_led instance = new Null_led();
+	static public Null_led instance = new Null_led();
 
-    @Override
-    public Symbol invoke(Symbol self, Parser p, Symbol left) throws ParseException {
+	@Override
+	public Symbol invoke(Symbol self, Parser p, Symbol left) throws ParseException {
 
-        self.token.error("Operator expected.");
-        return null;
-    }
+		self.token.error("Operator expected.");
+		return null;
+	}
 
 }

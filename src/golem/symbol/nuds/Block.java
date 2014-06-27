@@ -13,42 +13,42 @@ import java.util.List;
 
 public class Block implements Inud, IRvalue {
 
-    public static Block instance = new Block();
+	public static Block instance = new Block();
 
-    @Override
-    public Symbol invoke(Symbol self, Parser p) throws ParseException {
+	@Override
+	public Symbol invoke(Symbol self, Parser p) throws ParseException {
 
-        ArrayList<Symbol> lst = new ArrayList<Symbol>();
-        p.pushScope();
+		ArrayList<Symbol> lst = new ArrayList<Symbol>();
+		p.pushScope();
 
-        while (!p.current().token.val.equals("}")) {
-            lst.add(p.expression(0));
-            p.advanceSoft(";");
-        }
-        p.advance(); // '}'
+		while (!p.current().token.val.equals("}")) {
+			lst.add(p.expression(0));
+			p.advanceSoft(";");
+		}
+		p.advance(); // '}'
 
-        p.popScope();
-        self.first = lst;
-        self.type = lst.get(lst.size() - 1).type;
-        self.rval = instance;
+		p.popScope();
+		self.first = lst;
+		self.type = lst.get(lst.size() - 1).type;
+		self.rval = instance;
 
-        return self;
-    }
+		return self;
+	}
 
-    @Override
-    public void invoke(Symbol self, Gen g, boolean genReresult) throws GenException {
+	@Override
+	public void invoke(Symbol self, Gen g, boolean genReresult) throws GenException {
 
-        @SuppressWarnings("unchecked")
-        List<Symbol> lst = (List<Symbol>) self.first;
-        int size = lst.size();
-        for (Symbol smb : lst) {
-            size--;
-            if (size == 0 && genReresult) {
-                smb.invokeRval(g, true);
-            } else {
-                smb.invokeRval(g, false);
-            }
-        }
-    }
+		@SuppressWarnings("unchecked")
+		List<Symbol> lst = (List<Symbol>) self.first;
+		int size = lst.size();
+		for (Symbol smb : lst) {
+			size--;
+			if (size == 0 && genReresult) {
+				smb.invokeRval(g, true);
+			} else {
+				smb.invokeRval(g, false);
+			}
+		}
+	}
 
 }

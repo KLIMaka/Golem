@@ -11,35 +11,36 @@ import golem.symbol.Symbol;
 
 public class Import implements Inud, IRvalue {
 
-    public static Import instance = new Import();
+	public static Import instance = new Import();
 
-    @Override
-    public Symbol invoke(Symbol self, Parser p) throws ParseException {
+	@Override
+	public Symbol invoke(Symbol self, Parser p) throws ParseException {
 
-        String imp = "";
-        for (;;) {
-            if (p.current().token.type != Token.ID && !p.current().toString().equals("*")) {
-                self.token.error("Error in import.");
-            }
+		String imp = "";
+		for (;;) {
+			if (p.current().token.type != Token.ID && !p.current().toString().equals("*")) {
+				self.token.error("Error in import.");
+			}
 
-            imp += p.current().toString();
-            p.advance();
+			imp += p.current().toString();
+			p.advance();
 
-            if (!p.current().toString().equals(".")) {
-                break;
-            }
+			if (!p.current().toString().equals(".")) {
+				break;
+			}
 
-            p.advance();
-            imp += ".";
-        }
+			p.advance();
+			imp += ".";
+		}
 
-        p.scope().addImport(imp);
-        self.first = imp;
-        self.rval = instance;
-        return self;
-    }
+		p.scope().addImport(imp);
+		self.first = imp;
+		self.rval = instance;
+		return self;
+	}
 
-    @Override
-    public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {}
+	@Override
+	public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
+	}
 
 }
