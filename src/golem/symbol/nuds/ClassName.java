@@ -10,16 +10,17 @@ import golem.symbol.Symbol;
 
 public class ClassName implements Inud, IRvalue {
 
-    public static ClassName instance = new ClassName();
+	public static ClassName instance = new ClassName();
 
-    @Override
-    public Symbol invoke(Symbol self, Parser p) throws ParseException {
-        self.rval = instance;
-        self.type = p.scope().resolveImportExt(self.toString());
-        return self;
-    }
+	@Override
+	public Symbol invoke(Symbol self, Parser p) throws ParseException {
+		self.rval = instance;
+		self.type = p.scope().resolveImportExt(self.toString());
+		return self;
+	}
 
-    @Override
-    public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {}
+	@Override
+	public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
+	}
 
 }

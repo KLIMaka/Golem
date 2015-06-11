@@ -14,23 +14,23 @@ import java.util.ArrayList;
 
 public class Golem {
 
-    public static void main(String[] args) throws GenException, IllegalArgumentException, SecurityException,
-            ClassNotFoundException, IllegalAccessException, InvocationTargetException, NoSuchMethodException,
-            IOException {
+	public static void main(String[] args) throws GenException, IllegalArgumentException, SecurityException,
+			ClassNotFoundException, IllegalAccessException, InvocationTargetException, NoSuchMethodException,
+			IOException {
 
-        String expr = Utils.getFile(new File("test.gol"));
-        Parser p = new Parser(expr);
-        Symbol res = p.program();
-        System.out.println(res);
-        Gen g = new Gen(p.getClassLoader());
-        g.begin();
-        res.invokeRval(g, false);
-        g.end();
-        ArrayList<String> imps = new ArrayList<String>();
-        imps.add("golem.frontend");
-        imps.add("golem.frontend.B");
-        System.out.println("-" + TypeUtils.resolveClass("B$C", imps));
+		String expr = Utils.getFile(new File("test.gol"));
+		Parser p = new Parser(expr);
+		Symbol res = p.program();
+		System.out.println(res);
+		Gen g = new Gen(p.getClassLoader());
+		g.begin();
+		res.invokeRval(g, false);
+		g.end();
+		ArrayList<String> imps = new ArrayList<String>();
+		imps.add("golem.frontend");
+		imps.add("golem.frontend.B");
+		System.out.println("-" + TypeUtils.resolveClass("B$C", imps));
 
-        // TypeUtils.resolveName("java.lang.System.out.println");
-    }
+		// TypeUtils.resolveName("java.lang.System.out.println");
+	}
 }

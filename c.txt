@@ -4,6 +4,7 @@ ID1 : '[A-Z][a-zA-Z]*'
 ID2 : '[a-zA-Z]{3}'
 CNAME: '[a-zA-Z_]+(\.[a-zA-Z_]+)*'
 
+MATCH : '{[0-9]{3}} {-} {[0-9]{3}} {-} {[0-9]{3}}' '123-123-123'
 MATCH : '{#include} CNAME {\(} ID {\)}' '#include java.lang.Syslem.out(foobar)'
 
 assign : '=';

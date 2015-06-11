@@ -14,30 +14,30 @@ import golem.typesystem.PlainOldTypeResolver;
 
 public class Typeof implements IRvalue, Inud {
 
-    public static Typeof instance = new Typeof();
+	public static Typeof instance = new Typeof();
 
-    @Override
-    public Symbol invoke(Symbol self, Parser p) throws ParseException {
+	@Override
+	public Symbol invoke(Symbol self, Parser p) throws ParseException {
 
-        p.advance("(");
-        self.first = p.expression(0);
-        p.advance(")");
-        self.type = new PlainOldTypeResolver(Type.javalangStringType);
-        self.rval = instance;
-        return self;
-    }
+		p.advance("(");
+		self.first = p.expression(0);
+		p.advance(")");
+		self.type = new PlainOldTypeResolver(Type.javalangStringType);
+		self.rval = instance;
+		return self;
+	}
 
-    @Override
-    public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
+	@Override
+	public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
 
-        if (genResult) {
-            ITypeResolver type = self.first().type;
-            if (type instanceof IFunctionTypeResolver) {
-                g.string(((IFunctionTypeResolver) type).getName());
-            } else {
-                g.string(self.first().type.get().getName());
-            }
-        }
-    }
+		if (genResult) {
+			ITypeResolver type = self.first().type;
+			if (type instanceof IFunctionTypeResolver) {
+				g.string(((IFunctionTypeResolver) type).getName());
+			} else {
+				g.string(self.first().type.get().getName());
+			}
+		}
+	}
 
 }

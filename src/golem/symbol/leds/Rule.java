@@ -10,17 +10,17 @@ import golem.symbol.Symbol;
 
 public class Rule implements Iled, IRvalue {
 
-    public static Rule instance = new Rule();
+	public static Rule instance = new Rule();
 
-    @Override
-    public Symbol invoke(Symbol self, Parser p, Symbol left) throws ParseException {
+	@Override
+	public Symbol invoke(Symbol self, Parser p, Symbol left) throws ParseException {
 
-        return null;
-    }
+		return null;
+	}
 
-    @Override
-    public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
+	@Override
+	public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
 
-    }
+	}
 
 }

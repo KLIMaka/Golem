@@ -7,13 +7,13 @@ import golem.symbol.Symbol;
 
 public class Null_nud implements Inud {
 
-    public static Null_nud instance = new Null_nud();
+	public static Null_nud instance = new Null_nud();
 
-    @Override
-    public Symbol invoke(Symbol self, Parser p) throws ParseException {
+	@Override
+	public Symbol invoke(Symbol self, Parser p) throws ParseException {
 
-        self.token.error("Symbol " + self.token.val + " undefined.");
-        return null;
-    }
+		self.token.error("Symbol " + self.token.val + " undefined.");
+		return null;
+	}
 
 }

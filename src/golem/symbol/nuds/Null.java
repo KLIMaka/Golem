@@ -13,23 +13,23 @@ import golem.typesystem.PlainOldTypeResolver;
 
 public class Null implements IRvalue, Inud {
 
-    public static Null instance = new Null();
+	public static Null instance = new Null();
 
-    @Override
-    public Symbol invoke(Symbol self, Parser p) throws ParseException {
+	@Override
+	public Symbol invoke(Symbol self, Parser p) throws ParseException {
 
-        self.type = new PlainOldTypeResolver(Type.nullType);
-        self.rval = instance;
-        return self;
-    }
+		self.type = new PlainOldTypeResolver(Type.nullType);
+		self.rval = instance;
+		return self;
+	}
 
-    @Override
-    public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
+	@Override
+	public void invoke(Symbol self, Gen g, boolean genResult) throws GenException {
 
-        CodeAttr code = g.getLocation();
-        if (genResult) {
-            code.emitPushNull();
-        }
-    }
+		CodeAttr code = g.getLocation();
+		if (genResult) {
+			code.emitPushNull();
+		}
+	}
 
 }

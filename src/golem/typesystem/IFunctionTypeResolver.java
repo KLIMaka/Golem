@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface IFunctionTypeResolver extends ITypeResolver {
 
-    public IMethodResolver match(List<ITypeResolver> types);
+	public IMethodResolver match(List<ITypeResolver> types);
 
-    public String getName();
+	public String getName();
 }
