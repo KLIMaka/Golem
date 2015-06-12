@@ -2,31 +2,32 @@ package golem.lex;
 
 import golem.symbol.ParseException;
 
-public class GolemLexer extends GenericMatcher {
+public class GolemLexer extends GenericMatcher implements ILexer {
 
 	// private String m_name;
 	private CharSequence m_input;
 	private int m_line = 1;
 	private int m_pos = 1;
 	private int m_next = 0;
-	private Token1 m_current = new Token1();
+	private GolemToken m_current = new GolemToken();
 
-	public static final int EOI = -1;
-	public static final int WS = 1;
-	public static final int NL = 2;
-	public static final int CPP_COM = 3;
-	public static final int ID = 4;
-	public static final int FLAOT = 5;
-	public static final int INT = 6;
-	public static final int STRING = 7;
-	public static final int CHAR = 8;
-	public static final int COOP = 9;
-	public static final int OP = 10;
+	public static final int WS = 0;
+	public static final int NL = 1;
+	public static final int CPP_COMM = 2;
+	public static final int ID = 3;
+	public static final int FLOAT = 4;
+	public static final int INT = 5;
+	public static final int STRING = 6;
+	public static final int CHAR = 7;
+	public static final int COP = 8;
+	public static final int OP = 9;
+	public static final int EOI = 10;
 
 	public GolemLexer(String text, String name) {
 		// m_name = "null";
 		m_input = text;
 
+		addRule(new Rule(".", OP, "OP", false));
 		addRule(new Rule("\n", NL, "NL", true) {
 			@Override
 			public void action(GenericMatcher lex) {
@@ -34,16 +35,14 @@ public class GolemLexer extends GenericMatcher {
 				m_pos = 0;
 			}
 		});
-		// addRule("[ \t\r]+", WS, "WS", true);
-		// addRule("\\/\\/[^\n]*", CPP_COM, "CPP_COM", true);
-		// addRule("[a-zA-Z_][a-zA-Z0-9_]*", ID, "ID", false);
-		// addRule("[0-9]+(\\.[0-9]*)([eE][\\+\\-]?[0-9]+)?", FLAOT, "FLOAT",
-		// false);
-		// addRule("[0-9]+", INT, "INT", false);
-		// addRule("^\\\"[^\\\"]*\\\"", STRING, "STRING", false);
-		// addRule("'.'", CHAR, "CHAR", false);
-		// addRule("[=!<>&\\|][=&\\|]+", COOP, "COOP", false);
-		// addRule(".", OP, "OP", false);
+		addRule(new Rule("[ \t\r]+", WS, "WS", true));
+		addRule(new Rule("\\/\\/[^\n]*", CPP_COMM, "CPP_COM", true));
+		addRule(new Rule("[a-zA-Z_][a-zA-Z0-9_]*", ID, "ID", false));
+		addRule(new Rule("[0-9]+(\\.[0-9]*)([eE][\\+\\-]?[0-9]+)?", FLOAT, "FLOAT", false));
+		addRule(new Rule("[0-9]+", INT, "INT", false));
+		addRule(new Rule("^\\\"[^\\\"]*\\\"", STRING, "STRING", false));
+		addRule(new Rule("'.'", CHAR, "CHAR", false));
+		addRule(new Rule("[=!<>&\\|][=&\\|]+", COP, "COOP", false));
 
 		addContext(m_input, name);
 	}
@@ -57,18 +56,22 @@ public class GolemLexer extends GenericMatcher {
 	@Override
 	public int next() {
 		m_current.type = super.next();
-		m_current.line = m_line;
-		m_current.pos = m_pos;
-		m_current.val = getValue();
+		if (m_current.type != -1) {
+			m_current.line = m_line;
+			m_current.pos = m_pos;
+			m_current.val = getValue();
+		}
 
 		return m_current.type;
 	}
 
-	public Token1 tok() {
+	@Override
+	public GolemToken tok() {
 		return m_current;
 	}
 
-	public Token1 ntok() {
+	@Override
+	public GolemToken ntok() {
 		return m_current.clone();
 	}
 

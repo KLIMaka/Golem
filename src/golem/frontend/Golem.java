@@ -2,6 +2,7 @@ package golem.frontend;
 
 import golem.generator.Gen;
 import golem.generator.GenException;
+import golem.lex.GolemLexer;
 import golem.parser.Parser;
 import golem.symbol.Symbol;
 import golem.typesystem.TypeUtils;
@@ -19,7 +20,7 @@ public class Golem {
 			IOException {
 
 		String expr = Utils.getFile(new File("test.gol"));
-		Parser p = new Parser(expr);
+		Parser p = new Parser(new GolemLexer(expr, "test.gol"));
 		Symbol res = p.program();
 		System.out.println(res);
 		Gen g = new Gen(p.getClassLoader());

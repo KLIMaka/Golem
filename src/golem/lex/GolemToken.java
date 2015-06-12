@@ -3,22 +3,20 @@ package golem.lex;
 import golem.generator.GenException;
 import golem.symbol.ParseException;
 
-public class Token1 implements Cloneable {
+public class GolemToken implements Cloneable, IToken {
 
 	public int line;
 	public int pos;
 	public int type;
 	public String val;
-	public GolemLexer context;
 
 	@Override
-	public Token1 clone() {
-		Token1 tok = new Token1();
+	public GolemToken clone() {
+		GolemToken tok = new GolemToken();
 		tok.line = line;
 		tok.pos = pos;
 		tok.type = type;
 		tok.val = val;
-		tok.context = context;
 
 		return tok;
 	}
@@ -39,6 +37,16 @@ public class Token1 implements Cloneable {
 
 	public void genWarning(String msg) {
 		System.out.println("Codegen warning(" + line + ":" + pos + ") : " + msg);
+	}
+
+	@Override
+	public int type() {
+		return type;
+	}
+
+	@Override
+	public String value() {
+		return val;
 	}
 
 }

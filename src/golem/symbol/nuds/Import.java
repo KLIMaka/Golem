@@ -18,7 +18,7 @@ public class Import implements Inud, IRvalue {
 
 		String imp = "";
 		for (;;) {
-			if (p.current().token.type != Token.ID && !p.current().toString().equals("*")) {
+			if (p.current().token.type() != Token.ID && !p.current().toString().equals("*")) {
 				self.token.error("Error in import.");
 			}
 

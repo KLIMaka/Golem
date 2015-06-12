@@ -129,7 +129,7 @@ public class GenericMatcher {
 
 		Rule rule = m_rulesByName.get(r.name);
 		if (rule == null) {
-			r.id = m_rules.size();
+			// r.id = m_rules.size();
 			m_rules.add(r);
 		} else {
 			int idx = m_rules.indexOf(rule);
@@ -236,6 +236,10 @@ public class GenericMatcher {
 		}
 
 		return m_id = rule.id;
+	}
+
+	public boolean eoi() {
+		return m_eoi;
 	}
 
 	public Matcher nextByPatt(String patt) {
