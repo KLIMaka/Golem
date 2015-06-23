@@ -21,7 +21,7 @@ public class Block implements Inud, IRvalue {
 		ArrayList<Symbol> lst = new ArrayList<Symbol>();
 		p.pushScope();
 
-		while (!p.current().token.val.equals("}")) {
+		while (!p.current().token.value().equals("}")) {
 			lst.add(p.expression(0));
 			p.advanceSoft(";");
 		}

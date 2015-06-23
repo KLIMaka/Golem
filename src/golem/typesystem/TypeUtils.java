@@ -1,12 +1,6 @@
 package golem.typesystem;
 
-import gnu.bytecode.ClassType;
-import gnu.bytecode.CodeAttr;
-import gnu.bytecode.Field;
-import gnu.bytecode.Member;
-import gnu.bytecode.Method;
-import gnu.bytecode.PrimType;
-import gnu.bytecode.Type;
+import gnu.bytecode.*;
 
 import java.util.ArrayList;
 import java.util.List;

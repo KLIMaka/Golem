@@ -97,7 +97,7 @@ public class Scope {
 
 		smb.nud = Itself.instance;
 		smb.proto = smb;
-		return m_defs.put(smb.token.val, smb);
+		return m_defs.put(smb.token.value(), smb);
 	}
 
 	public Scope getParent() {

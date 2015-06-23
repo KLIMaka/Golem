@@ -24,7 +24,7 @@ public class If_ implements Inud, IRvalue {
 		p.advance(")");
 		self.second = p.expression(0);
 
-		if (p.current().token.val.equals("else")) {
+		if (p.current().token.value().equals("else")) {
 			p.advance();
 			self.third = p.expression(0);
 		}

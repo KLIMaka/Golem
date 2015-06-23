@@ -1,7 +1,6 @@
 package golem.parser;
 
-import gnu.bytecode.ArrayClassLoader;
-import golem.lex.Lexer;
+import golem.lex.ILexer;
 import golem.lex.Token;
 import golem.symbol.Iled;
 import golem.symbol.Inud;
@@ -11,18 +10,7 @@ import golem.symbol.leds.Assign;
 import golem.symbol.leds.Bin;
 import golem.symbol.leds.Call;
 import golem.symbol.leds.Member;
-import golem.symbol.nuds.Block;
-import golem.symbol.nuds.Def;
-import golem.symbol.nuds.False;
-import golem.symbol.nuds.If_;
-import golem.symbol.nuds.Import;
-import golem.symbol.nuds.Itself;
-import golem.symbol.nuds.New;
-import golem.symbol.nuds.Null;
-import golem.symbol.nuds.Parentheses;
-import golem.symbol.nuds.True;
-import golem.symbol.nuds.Typeof;
-import golem.symbol.nuds.While_;
+import golem.symbol.nuds.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,11 +18,10 @@ import java.util.Map;
 
 public class Parser {
 
-	private Lexer m_lex;
+	private ILexer m_lex;
 	private Symbol m_current = new Symbol();
 	private Map<String, Symbol> m_symbols = new HashMap<String, Symbol>();
 	private Scope m_scope = new Scope();
-	private ArrayClassLoader m_classLoader = new ArrayClassLoader();
 
 	protected Symbol symbol(String smb, int bp) {
 
@@ -69,9 +56,9 @@ public class Parser {
 		return ref;
 	}
 
-	public Parser(CharSequence cs) throws ParseException {
+	public Parser(ILexer lex) throws ParseException {
 
-		m_lex = new Lexer(cs);
+		m_lex = lex;
 		m_current.token = m_lex.tok();
 		m_current.scope = m_scope;
 		m_scope.addImport("java.lang.*");
@@ -87,6 +74,11 @@ public class Parser {
 		infix("-", 50, Bin.instance);
 		infix("*", 60, Bin.instance);
 		infix("/", 60, Bin.instance);
+		infix(">", 40, Bin.instance);
+		infix("<", 40, Bin.instance);
+		infix("==", 40, Bin.instance);
+		infix(">=", 40, Bin.instance);
+		infix("<=", 40, Bin.instance);
 		infix("=", 10, Assign.instance);
 		infix(".", 80, Member.instance);
 		infix("(", 80, Call.instance);
@@ -108,8 +100,8 @@ public class Parser {
 
 	public void advanceSoft(String expected) {
 
-		if (expected != null && !expected.equals(m_lex.tok().val)) {
-			m_lex.tok().warning("Expecting '" + expected + "'");
+		if (expected != null && !expected.equals(m_lex.tok().value())) {
+			// m_lex.tok().warning("Expecting '" + expected + "'");
 			return;
 		}
 
@@ -117,9 +109,9 @@ public class Parser {
 		resolveSymbol();
 	}
 
-	public void advance(String expected) throws ParseException {
+	public void advance(String expected) {
 
-		if (expected != null && !expected.equals(m_lex.tok().val)) {
+		if (expected != null && !expected.equals(m_lex.tok().value())) {
 			m_lex.tok().error("Expecting '" + expected + "'");
 			return;
 		}
@@ -134,7 +126,7 @@ public class Parser {
 
 	public void resolveSymbol() {
 
-		switch (m_lex.tok().type) {
+		switch (m_lex.tok().type()) {
 
 		case Token.INT:
 		case Token.FLOAT:
@@ -144,9 +136,9 @@ public class Parser {
 			break;
 
 		case Token.ID: {
-			Symbol smb = m_symbols.get(m_lex.tok().val);
+			Symbol smb = m_symbols.get(m_lex.tok().value());
 			if (smb == null) {
-				smb = m_scope.find(m_lex.tok().val);
+				smb = m_scope.find(m_lex.tok().value());
 			}
 			updateCurrent(smb);
 			break;
@@ -154,7 +146,7 @@ public class Parser {
 
 		case Token.COP:
 		case Token.OP: {
-			Symbol smb = m_symbols.get(m_lex.tok().val);
+			Symbol smb = m_symbols.get(m_lex.tok().value());
 			if (smb == null) {
 				m_lex.tok().error("Unexpected token.");
 				return;
@@ -240,9 +232,5 @@ public class Parser {
 			m_current.token.error("Java exception: " + e);
 		}
 		return null;
-	}
-
-	public ArrayClassLoader getClassLoader() {
-		return m_classLoader;
 	}
 }

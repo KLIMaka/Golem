@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 .classpath
 .project
 .settings
 bin/
 target/
+=======
+/bin
+/target
+/.settings
+.classpath
+.project
+>>>>>>> mavenize

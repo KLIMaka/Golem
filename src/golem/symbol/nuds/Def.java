@@ -17,7 +17,7 @@ public class Def implements Inud, IRvalue {
 	@Override
 	public Symbol invoke(Symbol self, Parser p) throws ParseException {
 
-		if (p.current().token.type != Token.ID) {
+		if (p.current().token.type() != Token.ID) {
 			p.current().token.error("Identifier expected");
 		}
 

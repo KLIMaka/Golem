@@ -1,15 +1,6 @@
 package golem.generator;
 
-import gnu.bytecode.Access;
-import gnu.bytecode.ArrayClassLoader;
-import gnu.bytecode.ClassType;
-import gnu.bytecode.ClassTypeWriter;
-import gnu.bytecode.CodeAttr;
-import gnu.bytecode.Label;
-import gnu.bytecode.Method;
-import gnu.bytecode.PrimType;
-import gnu.bytecode.Type;
-import gnu.bytecode.Variable;
+import gnu.bytecode.*;
 import golem.symbol.Symbol;
 
 import java.lang.reflect.InvocationTargetException;
@@ -24,9 +15,9 @@ public class Gen {
 	private CodeAttr m_code;
 	private ArrayClassLoader m_classLoader;
 
-	public Gen(ArrayClassLoader cl) {
+	public Gen() {
 
-		m_classLoader = cl;
+		m_classLoader = new ArrayClassLoader();
 		m_class = new ClassType("GolemExec");
 		m_class.setSuper("java.lang.Object");
 		m_class.setModifiers(Access.PUBLIC);
@@ -100,7 +91,6 @@ public class Gen {
 		PrimType oper_type = (PrimType) res_Type.promote();
 		m_code.emitAdd(oper_type);
 		m_code.emitConvert(oper_type, res_Type);
-
 	}
 
 	public void sub() {
@@ -120,6 +110,44 @@ public class Gen {
 
 	public void mod() {
 		m_code.emitRem();
+	}
+
+	public void gt() {
+		m_code.emitIfGt();
+		m_code.emitThen();
+		m_code.emitPushInt(1);
+		m_code.emitElse();
+		m_code.emitPushInt(0);
+		m_code.emitFi();
+	}
+
+	public void ge() {
+		m_code.emitIfGe();
+		m_code.emitThen();
+		m_code.emitPushInt(1);
+		m_code.emitElse();
+		m_code.emitPushInt(0);
+		m_code.emitFi();
+	}
+
+	public void lt() {
+		m_code.emitIfLt();
+		m_code.emitThen();
+		m_code.emitPushInt(1);
+		m_code.emitElse();
+		m_code.emitPushInt(0);
+		m_code.emitFi();
+
+	}
+
+	public void le() {
+		m_code.emitIfLe();
+		m_code.emitThen();
+		m_code.emitPushInt(1);
+		m_code.emitElse();
+		m_code.emitPushInt(0);
+		m_code.emitFi();
+
 	}
 
 	public void jmp(Label lab) {
@@ -160,14 +188,6 @@ public class Gen {
 
 	public void string(String s) {
 		m_code.emitPushString(s);
-	}
-
-	public void getStatic(String clazz, String field) {
-		m_code.emitGetStatic(ClassType.make(clazz).getField(field));
-	}
-
-	public void invokeVirtual(String clazz, String method) {
-		m_code.emitInvokeVirtual(ClassType.make(clazz).getMethod(method, new Type[] { Type.intType }));
 	}
 
 	public ArrayClassLoader getClassLoader() {

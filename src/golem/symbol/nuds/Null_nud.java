@@ -11,8 +11,7 @@ public class Null_nud implements Inud {
 
 	@Override
 	public Symbol invoke(Symbol self, Parser p) throws ParseException {
-
-		self.token.error("Symbol " + self.token.val + " undefined.");
+		self.token.error("Symbol " + self.token.value() + " undefined.");
 		return null;
 	}
 

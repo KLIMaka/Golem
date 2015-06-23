@@ -1,13 +1,6 @@
 package golem.utils;
 
-import gnu.bytecode.Access;
-import gnu.bytecode.ArrayClassLoader;
-import gnu.bytecode.ClassType;
-import gnu.bytecode.ClassTypeWriter;
-import gnu.bytecode.CodeAttr;
-import gnu.bytecode.Field;
-import gnu.bytecode.Method;
-import gnu.bytecode.Type;
+import gnu.bytecode.*;
 import golem.parser.Parser;
 import golem.symbol.Symbol;
 import golem.typesystem.Methods;
@@ -76,8 +69,7 @@ public class Utils {
 			if (types.size() != 0)
 				params = Lambda.joinFrom(types, "").getSignature();
 
-			Method mm = clazz.addMethod(methods.getName(), "(" + params + ")" + m.getReturnType().getSignature(),
-					Access.PUBLIC);
+			Method mm = clazz.addMethod(methods.getName(), "(" + params + ")" + m.getReturnType().getSignature(), Access.PUBLIC);
 			CodeAttr code = mm.startCode();
 			code.pushScope();
 

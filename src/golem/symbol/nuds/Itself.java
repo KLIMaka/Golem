@@ -5,11 +5,7 @@ import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.lex.Token;
 import golem.parser.Parser;
-import golem.symbol.ILvalue;
-import golem.symbol.IRvalue;
-import golem.symbol.Inud;
-import golem.symbol.ParseException;
-import golem.symbol.Symbol;
+import golem.symbol.*;
 import golem.typesystem.PlainOldTypeResolver;
 
 public class Itself implements Inud, IRvalue, ILvalue {
@@ -19,7 +15,7 @@ public class Itself implements Inud, IRvalue, ILvalue {
 	@Override
 	public Symbol invoke(Symbol self, Parser p) throws ParseException {
 
-		switch (self.token.type) {
+		switch (self.token.type()) {
 		case Token.ID:
 			self.type = self.proto.type;
 			self.lval = instance;
@@ -51,7 +47,7 @@ public class Itself implements Inud, IRvalue, ILvalue {
 
 		try {
 			if (genResult) {
-				switch (self.token.type) {
+				switch (self.token.type()) {
 				case Token.ID:
 					g.fetch(self.proto);
 					break;

@@ -7,11 +7,7 @@ import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.lex.Token;
 import golem.parser.Parser;
-import golem.symbol.ILvalue;
-import golem.symbol.IRvalue;
-import golem.symbol.Iled;
-import golem.symbol.ParseException;
-import golem.symbol.Symbol;
+import golem.symbol.*;
 import golem.symbol.nuds.ClassName;
 import golem.typesystem.Methods;
 import golem.typesystem.PlainOldTypeResolver;
@@ -25,7 +21,7 @@ public class Member implements Iled, IRvalue, ILvalue {
 	@Override
 	public Symbol invoke(Symbol self, Parser p, Symbol left) throws ParseException {
 
-		if (p.current().token.type != Token.ID) {
+		if (p.current().token.type() != Token.ID) {
 			p.current().token.error("Identifier expected");
 			return null;
 		}
