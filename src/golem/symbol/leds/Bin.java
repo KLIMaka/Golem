@@ -51,6 +51,14 @@ public class Bin implements Iled, IRvalue {
 				g.div();
 			} else if (self.toString().equals("%")) {
 				g.mod();
+			} else if (self.toString().equals(">")) {
+				g.gt();
+			} else if (self.toString().equals("<")) {
+				g.lt();
+			} else if (self.toString().equals(">=")) {
+				g.ge();
+			} else if (self.toString().equals("<=")) {
+				g.le();
 			}
 		}
 	}

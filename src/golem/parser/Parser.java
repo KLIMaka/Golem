@@ -1,6 +1,5 @@
 package golem.parser;
 
-import gnu.bytecode.ArrayClassLoader;
 import golem.lex.ILexer;
 import golem.lex.Token;
 import golem.symbol.Iled;
@@ -23,7 +22,6 @@ public class Parser {
 	private Symbol m_current = new Symbol();
 	private Map<String, Symbol> m_symbols = new HashMap<String, Symbol>();
 	private Scope m_scope = new Scope();
-	private ArrayClassLoader m_classLoader = new ArrayClassLoader();
 
 	protected Symbol symbol(String smb, int bp) {
 
@@ -76,6 +74,11 @@ public class Parser {
 		infix("-", 50, Bin.instance);
 		infix("*", 60, Bin.instance);
 		infix("/", 60, Bin.instance);
+		infix(">", 40, Bin.instance);
+		infix("<", 40, Bin.instance);
+		infix("==", 40, Bin.instance);
+		infix(">=", 40, Bin.instance);
+		infix("<=", 40, Bin.instance);
 		infix("=", 10, Assign.instance);
 		infix(".", 80, Member.instance);
 		infix("(", 80, Call.instance);
@@ -98,7 +101,7 @@ public class Parser {
 	public void advanceSoft(String expected) {
 
 		if (expected != null && !expected.equals(m_lex.tok().value())) {
-			m_lex.tok().warning("Expecting '" + expected + "'");
+			// m_lex.tok().warning("Expecting '" + expected + "'");
 			return;
 		}
 
@@ -229,9 +232,5 @@ public class Parser {
 			m_current.token.error("Java exception: " + e);
 		}
 		return null;
-	}
-
-	public ArrayClassLoader getClassLoader() {
-		return m_classLoader;
 	}
 }
