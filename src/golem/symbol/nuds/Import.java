@@ -1,8 +1,8 @@
 package golem.symbol.nuds;
 
+import static golem.lex.GolemLexer.ID;
 import golem.generator.Gen;
 import golem.generator.GenException;
-import golem.lex.Token;
 import golem.parser.Parser;
 import golem.symbol.IRvalue;
 import golem.symbol.Inud;
@@ -18,7 +18,7 @@ public class Import implements Inud, IRvalue {
 
 		String imp = "";
 		for (;;) {
-			if (p.current().token.type() != Token.ID && !p.current().toString().equals("*")) {
+			if (p.current().token.type() != ID && !p.current().toString().equals("*")) {
 				self.token.error("Error in import.");
 			}
 

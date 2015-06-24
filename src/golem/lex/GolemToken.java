@@ -3,7 +3,7 @@ package golem.lex;
 import golem.generator.GenException;
 import golem.symbol.ParseException;
 
-public class GolemToken implements Cloneable, IToken {
+public class GolemToken implements Cloneable, Token {
 
 	public int line;
 	public int pos;

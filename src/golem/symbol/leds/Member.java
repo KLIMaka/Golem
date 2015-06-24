@@ -1,11 +1,11 @@
 package golem.symbol.leds;
 
+import static golem.lex.GolemLexer.ID;
 import gnu.bytecode.ClassType;
 import gnu.bytecode.Field;
 import gnu.bytecode.Method;
 import golem.generator.Gen;
 import golem.generator.GenException;
-import golem.lex.Token;
 import golem.parser.Parser;
 import golem.symbol.*;
 import golem.symbol.nuds.ClassName;
@@ -21,7 +21,7 @@ public class Member implements Iled, IRvalue, ILvalue {
 	@Override
 	public Symbol invoke(Symbol self, Parser p, Symbol left) throws ParseException {
 
-		if (p.current().token.type() != Token.ID) {
+		if (p.current().token.type() != ID) {
 			p.current().token.error("Identifier expected");
 			return null;
 		}

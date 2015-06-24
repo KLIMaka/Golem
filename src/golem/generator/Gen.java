@@ -112,6 +112,15 @@ public class Gen {
 		m_code.emitRem();
 	}
 
+	public void eq() {
+		m_code.emitIfEq();
+		m_code.emitThen();
+		m_code.emitPushInt(1);
+		m_code.emitElse();
+		m_code.emitPushInt(0);
+		m_code.emitFi();
+	}
+
 	public void gt() {
 		m_code.emitIfGt();
 		m_code.emitThen();
@@ -137,7 +146,6 @@ public class Gen {
 		m_code.emitElse();
 		m_code.emitPushInt(0);
 		m_code.emitFi();
-
 	}
 
 	public void le() {
@@ -147,7 +155,6 @@ public class Gen {
 		m_code.emitElse();
 		m_code.emitPushInt(0);
 		m_code.emitFi();
-
 	}
 
 	public void jmp(Label lab) {

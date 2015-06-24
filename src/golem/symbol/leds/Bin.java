@@ -1,5 +1,6 @@
 package golem.symbol.leds;
 
+import static golem.typesystem.TypeUtils.arithmType;
 import golem.generator.Gen;
 import golem.generator.GenException;
 import golem.parser.Parser;
@@ -19,7 +20,7 @@ public class Bin implements Iled, IRvalue {
 
 		Symbol right = p.expression(self.lbp);
 
-		ITypeResolver type = TypeUtils.arithmType(left.type.get(), right.type.get());
+		ITypeResolver type = arithmType(left.type.get(), right.type.get());
 		self.first = left;
 		self.second = right;
 		self.type = type;
@@ -59,6 +60,8 @@ public class Bin implements Iled, IRvalue {
 				g.ge();
 			} else if (self.toString().equals("<=")) {
 				g.le();
+			} else if (self.toString().equals("==")) {
+				g.eq();
 			}
 		}
 	}

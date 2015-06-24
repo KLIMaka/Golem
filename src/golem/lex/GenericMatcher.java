@@ -1,6 +1,7 @@
 package golem.lex;
 
 import static com.google.common.collect.Iterators.filter;
+import static golem.lex.ComplexRule.*;
 import golem.utils.Utils;
 
 import java.io.IOException;
@@ -368,5 +369,11 @@ public class GenericMatcher {
 
 		while (lexParser.next() != -1)
 			;
+		GenericMatcher m = new GenericMatcher();
+		m.addRule("[ \t\n\r]+", "WS", true);
+		m.addRule("[A-Za-z][A-Za-z0-9]*", "ID", false);
+		m.addContext("(foo, bar, baz, goo)", "");
+		Object r = AND(PATTERN("\\("), RULE("ID"), COUNT(AND(PATTERN(","), RULE("ID")), -1, -1), PATTERN("\\)")).exec(m);
+		System.out.println(r);
 	}
 }

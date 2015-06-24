@@ -1,8 +1,7 @@
 package golem.lex;
 
-import golem.symbol.ParseException;
 
-public class GolemLexer extends GenericMatcher implements ILexer {
+public class GolemLexer extends GenericMatcher implements Lexer {
 
 	// private String m_name;
 	private CharSequence m_input;
@@ -73,10 +72,5 @@ public class GolemLexer extends GenericMatcher implements ILexer {
 	@Override
 	public GolemToken ntok() {
 		return m_current.clone();
-	}
-
-	public void error(String msg) throws ParseException {
-		System.err.println("Error(" + m_line + ":" + m_pos + ") : " + msg);
-		throw new ParseException(msg);
 	}
 }

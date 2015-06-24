@@ -1,7 +1,7 @@
 package golem.parser;
 
-import golem.lex.ILexer;
-import golem.lex.Token;
+import static golem.lex.GolemLexer.*;
+import golem.lex.Lexer;
 import golem.symbol.Iled;
 import golem.symbol.Inud;
 import golem.symbol.ParseException;
@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class Parser {
 
-	private ILexer m_lex;
+	private Lexer m_lex;
 	private Symbol m_current = new Symbol();
 	private Map<String, Symbol> m_symbols = new HashMap<String, Symbol>();
 	private Scope m_scope = new Scope();
@@ -56,7 +56,7 @@ public class Parser {
 		return ref;
 	}
 
-	public Parser(ILexer lex) throws ParseException {
+	public Parser(Lexer lex) throws ParseException {
 
 		m_lex = lex;
 		m_current.token = m_lex.tok();
@@ -128,14 +128,14 @@ public class Parser {
 
 		switch (m_lex.tok().type()) {
 
-		case Token.INT:
-		case Token.FLOAT:
-		case Token.CHAR:
-		case Token.STRING:
+		case INT:
+		case FLOAT:
+		case CHAR:
+		case STRING:
 			updateCurrent(m_symbols.get("{literal}"));
 			break;
 
-		case Token.ID: {
+		case ID: {
 			Symbol smb = m_symbols.get(m_lex.tok().value());
 			if (smb == null) {
 				smb = m_scope.find(m_lex.tok().value());
@@ -144,8 +144,8 @@ public class Parser {
 			break;
 		}
 
-		case Token.COP:
-		case Token.OP: {
+		case COP:
+		case OP: {
 			Symbol smb = m_symbols.get(m_lex.tok().value());
 			if (smb == null) {
 				m_lex.tok().error("Unexpected token.");

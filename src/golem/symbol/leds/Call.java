@@ -1,5 +1,6 @@
 package golem.symbol.leds;
 
+import static golem.utils.Utils.list;
 import gnu.bytecode.Method;
 import gnu.bytecode.Type;
 import golem.generator.Gen;
@@ -13,7 +14,6 @@ import golem.typesystem.IFunctionTypeResolver;
 import golem.typesystem.IMethodResolver;
 import golem.typesystem.ITypeResolver;
 import golem.typesystem.TypeUtils;
-import golem.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class Call implements Iled, IRvalue {
 	@Override
 	public Symbol invoke(Symbol self, Parser p, Symbol left) throws ParseException {
 
-		ArrayList<Symbol> args = Utils.list(p, ",", ")");
+		ArrayList<Symbol> args = list(p, ",", ")");
 		List<ITypeResolver> types = Lambda.extract(args, Lambda.on(Symbol.class).type());
 
 		IMethodResolver method = ((IFunctionTypeResolver) left.type).match(types);

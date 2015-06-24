@@ -1,9 +1,10 @@
 package golem.symbol.nuds;
 
+import static golem.lex.GolemLexer.*;
 import gnu.bytecode.Type;
 import golem.generator.Gen;
 import golem.generator.GenException;
-import golem.lex.Token;
+import golem.lex.GolemLexer;
 import golem.parser.Parser;
 import golem.symbol.*;
 import golem.typesystem.PlainOldTypeResolver;
@@ -16,20 +17,20 @@ public class Itself implements Inud, IRvalue, ILvalue {
 	public Symbol invoke(Symbol self, Parser p) throws ParseException {
 
 		switch (self.token.type()) {
-		case Token.ID:
+		case ID:
 			self.type = self.proto.type;
 			self.lval = instance;
 			break;
-		case Token.CHAR:
+		case CHAR:
 			self.type = new PlainOldTypeResolver(Type.charType);
 			break;
-		case Token.INT:
+		case GolemLexer.INT:
 			self.type = new PlainOldTypeResolver(Type.intType);
 			break;
-		case Token.FLOAT:
+		case FLOAT:
 			self.type = new PlainOldTypeResolver(Type.floatType);
 			break;
-		case Token.STRING:
+		case STRING:
 			self.type = new PlainOldTypeResolver(Type.javalangStringType);
 			break;
 
@@ -48,19 +49,19 @@ public class Itself implements Inud, IRvalue, ILvalue {
 		try {
 			if (genResult) {
 				switch (self.token.type()) {
-				case Token.ID:
+				case ID:
 					g.fetch(self.proto);
 					break;
 
-				case Token.INT:
+				case INT:
 					g.integer(Integer.parseInt(self.toString()));
 					break;
 
-				case Token.FLOAT:
+				case FLOAT:
 					g.float_(Float.parseFloat(self.toString()));
 					break;
 
-				case Token.STRING:
+				case STRING:
 					g.string(self.toString().substring(1, self.toString().length() - 1));
 					break;
 

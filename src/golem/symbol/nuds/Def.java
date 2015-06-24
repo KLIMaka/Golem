@@ -1,8 +1,8 @@
 package golem.symbol.nuds;
 
+import static golem.lex.GolemLexer.ID;
 import golem.generator.Gen;
 import golem.generator.GenException;
-import golem.lex.Token;
 import golem.parser.Parser;
 import golem.symbol.IRvalue;
 import golem.symbol.Inud;
@@ -17,7 +17,7 @@ public class Def implements Inud, IRvalue {
 	@Override
 	public Symbol invoke(Symbol self, Parser p) throws ParseException {
 
-		if (p.current().token.type() != Token.ID) {
+		if (p.current().token.type() != ID) {
 			p.current().token.error("Identifier expected");
 		}
 
