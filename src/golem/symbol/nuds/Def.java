@@ -1,13 +1,10 @@
 package golem.symbol.nuds;
 
 import static golem.lex.GolemLexer.ID;
-import golem.generator.Gen;
-import golem.generator.GenException;
+
+import golem.generator.*;
 import golem.parser.Parser;
-import golem.symbol.IRvalue;
-import golem.symbol.Inud;
-import golem.symbol.ParseException;
-import golem.symbol.Symbol;
+import golem.symbol.*;
 import golem.typesystem.StaticFunctionTypeResolver;
 
 public class Def implements Inud, IRvalue {
@@ -30,6 +27,7 @@ public class Def implements Inud, IRvalue {
 		p.resolveSymbol();
 
 		name.type = expr.type;
+		name.first = self;
 		self.type = name.type;
 		self.first = name;
 		self.second = expr;

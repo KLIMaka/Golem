@@ -10,12 +10,14 @@ def abs = Math.abs;
 def time = System.currentTimeMillis;
 def print = System.out.println;
 
-def i = 0;
+def i = "0";
 def rand = abs(r() - r());
 while (rand > 0.001) {
 	rand = abs(r() - r());
 	i = i + 1;
 }
+def a = if (r() > 0.5) 1 else "2";
 
 System.out.println(i);
 System.out.println(rand);
+System.out.println(a + 1);

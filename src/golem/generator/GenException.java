@@ -7,4 +7,8 @@ public class GenException extends Exception {
 		super(msg);
 	}
 
+	public GenException(String msg, Throwable e) {
+		super(msg, e);
+	}
+
 }

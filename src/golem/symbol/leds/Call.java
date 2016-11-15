@@ -1,24 +1,15 @@
 package golem.symbol.leds;
 
 import static golem.utils.Utils.list;
-import gnu.bytecode.Method;
-import gnu.bytecode.Type;
-import golem.generator.Gen;
-import golem.generator.GenException;
-import golem.parser.Parser;
-import golem.symbol.IRvalue;
-import golem.symbol.Iled;
-import golem.symbol.ParseException;
-import golem.symbol.Symbol;
-import golem.typesystem.IFunctionTypeResolver;
-import golem.typesystem.IMethodResolver;
-import golem.typesystem.ITypeResolver;
-import golem.typesystem.TypeUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import ch.lambdaj.Lambda;
+import gnu.bytecode.*;
+import golem.generator.*;
+import golem.parser.Parser;
+import golem.symbol.*;
+import golem.typesystem.*;
 
 public class Call implements Iled, IRvalue {
 

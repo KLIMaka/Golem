@@ -1,15 +1,13 @@
 package golem.symbol;
 
-import golem.generator.Gen;
-import golem.generator.GenException;
+import java.util.*;
+
+import golem.generator.*;
 import golem.lex.Token;
 import golem.parser.Scope;
 import golem.symbol.leds.Null_led;
 import golem.symbol.nuds.Null_nud;
 import golem.typesystem.ITypeResolver;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class Symbol {
 
@@ -38,11 +36,19 @@ public class Symbol {
 	}
 
 	public void invokeRval(Gen g, boolean genResult) throws GenException {
-		rval.invoke(this, g, genResult);
+		try {
+			rval.invoke(this, g, genResult);
+		} catch (Exception e) {
+			token.error(e.getMessage(), e);
+		}
 	}
 
 	public void invokeLval(Gen g, Symbol val) throws GenException {
-		lval.invoke(this, g, val);
+		try {
+			lval.invoke(this, g, val);
+		} catch (Exception e) {
+			token.error(e.getMessage(), e);
+		}
 	}
 
 	public ITypeResolver type() {
