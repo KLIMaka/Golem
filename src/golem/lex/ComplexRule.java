@@ -5,8 +5,28 @@ import java.util.regex.Matcher;
 
 public class ComplexRule {
 
+	public static class NamedResult {
+		public final String name;
+		public final Object val;
+
+		public NamedResult(String name, Object val) {
+			this.name = name;
+			this.val = val;
+		}
+	}
+
 	public interface Rule {
 		Object exec(GenericMatcher matcher);
+	}
+
+	public static Rule NAMED(final String name, final Rule rule) {
+		return new Rule() {
+			@Override
+			public Object exec(GenericMatcher matcher) {
+				Object m = rule.exec(matcher);
+				return m == null ? null : new NamedResult(name, m);
+			}
+		};
 	}
 
 	public static Rule RULE(final String name) {
@@ -79,6 +99,18 @@ public class ComplexRule {
 				}
 			}
 		};
+	}
+
+	public static Rule STAR(Rule rule) {
+		return COUNT(rule, -1, -1);
+	}
+
+	public static Rule PLUS(Rule rule) {
+		return COUNT(rule, 1, -1);
+	}
+
+	public static Rule QM(Rule rule) {
+		return COUNT(rule, -1, 1);
 	}
 
 }

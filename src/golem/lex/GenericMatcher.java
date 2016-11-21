@@ -2,95 +2,44 @@ package golem.lex;
 
 import static com.google.common.collect.Iterators.filter;
 import static golem.lex.ComplexRule.*;
-import golem.utils.Utils;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
+
+import golem.lex.ComplexRule.*;
+import golem.utils.Utils;
 
 public class GenericMatcher {
 
-	public static class Rule {
-
-		public Pattern pattern;
-		public String patt;
-		public int id;
-		public String name;
-		public boolean hidden;
-		public Matcher matcher;
-
-		public Rule(String patt, int i, String n, boolean h) {
-			this.patt = patt;
-			pattern = Pattern.compile("^" + patt);
-			id = i;
-			name = n;
-			hidden = h;
-		}
-
-		@Override
-		public String toString() {
-			return name;
-		}
-
-		public Object convert(Matcher m) {
-			return m.group();
-		}
-
-		public void action(GenericMatcher lex) {
-		}
-
-		public void setSource(CharSequence cs) {
-			matcher = pattern.matcher(cs);
-		}
-
-		public static Predicate<Rule> isHidden = new Predicate<Rule>() {
-			@Override
-			public boolean apply(Rule r) {
-				return r.hidden;
-			}
-		};
-	}
-
-	public static class Context {
-
-		public int end;
-		public String name;
-	}
-
-	public static interface ILexerAction {
-		public void invoke(GenericMatcher lex);
-	}
-
 	private int m_id;
-	private Rule m_rule;
+	private MatcherRule m_rule;
 	private Matcher m_value;
 	private boolean m_hide = true;
 	private boolean m_eoi = false;
-	private ArrayList<Rule> m_rules = new ArrayList<>();
+	private ArrayList<MatcherRule> m_rules = new ArrayList<>();
 
-	private Map<String, Rule> m_rulesByPatt = new HashMap<>();
-	private Map<String, Rule> m_rulesByName = new HashMap<>();
+	private Map<String, MatcherRule> m_rulesByPatt = new HashMap<>();
+	private Map<String, MatcherRule> m_rulesByName = new HashMap<>();
 
 	private StringBuilder m_source = new StringBuilder();
 	private int m_offset = 0;
 	private int m_end = 0;
-	private Stack<Context> m_conextStack = new Stack<>();
-	private Context m_current = null;
+	private Stack<LexerContext> m_conextStack = new Stack<>();
+	private LexerContext m_current = null;
 
 	public GenericMatcher() {
 	}
 
-	public Rule addRule(String patt, String name, boolean hidden) {
+	public MatcherRule addRule(String patt, String name, boolean hidden) {
 
-		Rule r = new Rule(patt, 0, name, hidden);
+		MatcherRule r = new MatcherRule(patt, 0, name, hidden);
 		r.setSource(m_source);
 
-		Rule rule = m_rulesByName.get(name);
+		MatcherRule rule = m_rulesByName.get(name);
 		if (rule == null) {
 			r.id = m_rules.size();
 			m_rules.add(r);
@@ -105,12 +54,12 @@ public class GenericMatcher {
 		return r;
 	}
 
-	public Rule addRule(String patt, boolean hidden) {
+	public MatcherRule addRule(String patt, boolean hidden) {
 
-		Rule r = new Rule(patt, 0, patt, hidden);
+		MatcherRule r = new MatcherRule(patt, 0, patt, hidden);
 		r.setSource(m_source);
 
-		Rule rule = m_rulesByPatt.get(patt);
+		MatcherRule rule = m_rulesByPatt.get(patt);
 		if (rule == null) {
 			r.id = m_rules.size();
 			m_rules.add(r);
@@ -125,10 +74,10 @@ public class GenericMatcher {
 		return r;
 	}
 
-	public void addRule(Rule r) {
+	public void addRule(MatcherRule r) {
 		r.setSource(m_source);
 
-		Rule rule = m_rulesByName.get(r.name);
+		MatcherRule rule = m_rulesByName.get(r.name);
 		if (rule == null) {
 			// r.id = m_rules.size();
 			m_rules.add(r);
@@ -143,17 +92,16 @@ public class GenericMatcher {
 
 	public void addContext(CharSequence cs, String name) {
 		m_conextStack.push(m_current);
-		m_current = new Context();
+		m_current = new LexerContext();
 		m_source.insert(m_offset, cs);
 		m_current.end = m_offset + cs.length();
 		m_end += cs.length();
 	}
 
 	public Matcher next(String patt, boolean skipHidden) {
-
 		if (skipHidden)
 			skipHidden();
-		Rule r = new Rule(patt, 0, null, false);
+		MatcherRule r = new MatcherRule(patt, 0, null, false);
 		r.setSource(m_source);
 		return exec(Iterators.singletonIterator(r)).matcher;
 	}
@@ -170,9 +118,9 @@ public class GenericMatcher {
 		updateContext();
 	}
 
-	protected Rule match(Iterator<Rule> rules) {
+	protected MatcherRule match(Iterator<MatcherRule> rules) {
 		while (rules.hasNext()) {
-			Rule r = rules.next();
+			MatcherRule r = rules.next();
 			Matcher m = r.matcher;
 			m.region(m_offset, m_end);
 			if (m.lookingAt()) {
@@ -182,11 +130,11 @@ public class GenericMatcher {
 		return null;
 	}
 
-	protected Rule exec(Iterator<Rule> rules) {
+	protected MatcherRule exec(Iterator<MatcherRule> rules) {
 
 		int len = 0;
-		Rule matched = null;
-		Rule rule = null;
+		MatcherRule matched = null;
+		MatcherRule rule = null;
 		while (rules.hasNext()) {
 			rule = rules.next();
 			Matcher m = rule.matcher;
@@ -216,7 +164,7 @@ public class GenericMatcher {
 
 	public int skipHidden() {
 		int skipped = 0;
-		while (exec(filter(m_rules.iterator(), Rule.isHidden)) != null) {
+		while (exec(filter(m_rules.iterator(), MatcherRule.isHidden)) != null) {
 			skipped++;
 		}
 		return skipped;
@@ -230,7 +178,7 @@ public class GenericMatcher {
 		if (m_hide)
 			skipHidden();
 
-		Rule rule = exec(m_rules.iterator());
+		MatcherRule rule = exec(m_rules.iterator());
 		if (rule == null) {
 			m_eoi = true;
 			return -1;
@@ -245,7 +193,7 @@ public class GenericMatcher {
 
 	public Matcher nextByPatt(String patt) {
 		skipHidden();
-		Rule rule = m_rulesByPatt.get(patt);
+		MatcherRule rule = m_rulesByPatt.get(patt);
 		if (rule == null) {
 			rule = addRule(patt, false);
 		}
@@ -256,7 +204,7 @@ public class GenericMatcher {
 
 	public Matcher nextByName(String name) {
 		skipHidden();
-		Rule rule = m_rulesByName.get(name);
+		MatcherRule rule = m_rulesByName.get(name);
 		rule = exec(Iterators.singletonIterator(rule));
 
 		return rule == null ? null : rule.matcher;
@@ -278,7 +226,7 @@ public class GenericMatcher {
 		return m_id;
 	}
 
-	public Rule getRule() {
+	public MatcherRule getRule() {
 		return m_rule;
 	}
 
@@ -300,7 +248,7 @@ public class GenericMatcher {
 
 		GenericMatcher lexParser = new GenericMatcher();
 
-		lexParser.addRule(new Rule("(!?)([A-Z_0-9]+)(\\*?)", 1, "ID", false) {
+		lexParser.addRule(new MatcherRule("(!?)([A-Z_0-9]+)(\\*?)", 1, "ID", false) {
 			int id = 0;
 
 			@Override
@@ -342,7 +290,7 @@ public class GenericMatcher {
 					}
 				} else {
 					if (isActive) {
-						Rule r = new Rule(escape(val), id++, ruleName, isHidden) {
+						MatcherRule r = new MatcherRule(escape(val), id++, ruleName, isHidden) {
 							@Override
 							public Object convert(Matcher m) {
 								try {
@@ -372,8 +320,52 @@ public class GenericMatcher {
 		GenericMatcher m = new GenericMatcher();
 		m.addRule("[ \t\n\r]+", "WS", true);
 		m.addRule("[A-Za-z][A-Za-z0-9]*", "ID", false);
-		m.addContext("(foo, bar, baz, goo)", "");
-		Object r = AND(PATTERN("\\("), RULE("ID"), COUNT(AND(PATTERN(","), RULE("ID")), -1, -1), PATTERN("\\)")).exec(m);
-		System.out.println(r);
+		m.addContext("foo(bar:Number, baz:String.out.printf, goo:Boo), bar(adasd:ggg)", "");
+		Rule QNAME = AND(NAMED("parts", RULE("ID")), STAR(AND(PATTERN("\\."), NAMED("parts", RULE("ID")))));
+		Rule ARG = AND(NAMED("name", RULE("ID")), PATTERN("\\:"), NAMED("type", QNAME));
+		Object r = AND(
+				NAMED("fname", RULE("ID")),
+				PATTERN("\\("),
+				QM(
+						AND(NAMED("args", ARG),
+								STAR(AND(PATTERN(","), NAMED("args", ARG))))),
+				PATTERN("\\)")).exec(m);
+		Object res = filter1(r);
+		System.out.println(res);
+	}
+
+	private static Object filter1(Object in) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		return filter1(in, map);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Object filter1(Object in, Map<String, Object> map) {
+		if (in instanceof String) {
+			return in;
+		} else if (in instanceof NamedResult) {
+			NamedResult nr = (NamedResult) in;
+			map.put(nr.name, filter1(nr.val));
+		} else if (in instanceof ArrayList) {
+			for (Object i : (ArrayList<Object>) in) {
+				if (i instanceof NamedResult) {
+					NamedResult nr = (NamedResult) i;
+					Object prev = map.get(nr.name);
+					if (prev == null) {
+						map.put(nr.name, filter1(nr.val));
+					} else if (prev instanceof ArrayList) {
+						((ArrayList<Object>) prev).add(filter1(nr.val));
+					} else {
+						ArrayList<Object> arr = new ArrayList<Object>();
+						arr.add(prev);
+						arr.add(filter1(nr.val));
+						map.put(nr.name, arr);
+					}
+				} else {
+					filter1(i, map);
+				}
+			}
+		}
+		return map;
 	}
 }

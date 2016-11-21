@@ -26,22 +26,22 @@ public class GolemLexer extends GenericMatcher implements Lexer {
 		// m_name = "null";
 		m_input = text;
 
-		addRule(new Rule(".", OP, "OP", false));
-		addRule(new Rule("\n", NL, "NL", true) {
+		addRule(new MatcherRule(".", OP, "OP", false));
+		addRule(new MatcherRule("\n", NL, "NL", true) {
 			@Override
 			public void action(GenericMatcher lex) {
 				m_line++;
 				m_pos = 0;
 			}
 		});
-		addRule(new Rule("[ \t\r]+", WS, "WS", true));
-		addRule(new Rule("\\/\\/[^\n]*", CPP_COMM, "CPP_COM", true));
-		addRule(new Rule("[a-zA-Z_][a-zA-Z0-9_]*", ID, "ID", false));
-		addRule(new Rule("[0-9]+(\\.[0-9]*)([eE][\\+\\-]?[0-9]+)?", FLOAT, "FLOAT", false));
-		addRule(new Rule("[0-9]+", INT, "INT", false));
-		addRule(new Rule("^\\\"[^\\\"]*\\\"", STRING, "STRING", false));
-		addRule(new Rule("'.'", CHAR, "CHAR", false));
-		addRule(new Rule("[=!<>&\\|][=&\\|]+", COP, "COOP", false));
+		addRule(new MatcherRule("[ \t\r]+", WS, "WS", true));
+		addRule(new MatcherRule("\\/\\/[^\n]*", CPP_COMM, "CPP_COM", true));
+		addRule(new MatcherRule("[a-zA-Z_][a-zA-Z0-9_]*", ID, "ID", false));
+		addRule(new MatcherRule("[0-9]+(\\.[0-9]*)([eE][\\+\\-]?[0-9]+)?", FLOAT, "FLOAT", false));
+		addRule(new MatcherRule("[0-9]+", INT, "INT", false));
+		addRule(new MatcherRule("^\\\"[^\\\"]*\\\"", STRING, "STRING", false));
+		addRule(new MatcherRule("'.'", CHAR, "CHAR", false));
+		addRule(new MatcherRule("[=!<>&\\|][=&\\|]+", COP, "COOP", false));
 
 		addContext(m_input, name);
 	}
